@@ -1,14 +1,48 @@
 import React from "react";
-import { SafeAreaView, StyleSheet } from "react-native";
+import {
+  SafeAreaView,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
+  ScrollView,
+  View,
+} from "react-native";
 
 export default function ScreenWrapper({ children }) {
-  return <SafeAreaView style={styles.wrapper}>{children}</SafeAreaView>;
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      {/* <KeyboardAvoidingView
+        style={styles.keyboardAvoid}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      > */}
+      {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}> */}
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.inner}>{children}</View>
+      </ScrollView>
+      {/* </TouchableWithoutFeedback> */}
+      {/* </KeyboardAvoidingView> */}
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
+  safeArea: {
     flex: 1,
-    padding: 16,
-    backgroundColor: "#fff", // or your app background
+    backgroundColor: "#fff",
+  },
+  keyboardAvoid: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+  },
+  inner: {
+    flex: 1,
+    // padding: 16,
   },
 });

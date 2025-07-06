@@ -4,13 +4,15 @@ import {
   Text,
   StyleSheet,
   ScrollView,
+  ActivityIndicator,
   Dimensions,
   Image,
 } from "react-native";
 import { fetchMentalRounds } from "../services/fetchMentalRound";
 import useAuth from "../hooks/auth";
 import ScreenWrapper from "../components/ScreenWrapper";
-import { ActivityIndicator } from "react-native-paper";
+import { usePaginationDots } from "../hooks/usePaginationDots";
+import PaginationDots from "../components/PaginationDots";
 
 const { width: screenWidth } = Dimensions.get("window");
 const CARD_WIDTH = screenWidth * 0.85;
@@ -41,13 +43,11 @@ export default function RoundHistoryScreen() {
     loadRounds();
   }, [user]);
 
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  const handleScroll = (event: any) => {
-    const offsetX = event.nativeEvent.contentOffset.x;
-    const index = Math.round(offsetX / (CARD_WIDTH + SPACING));
-    setActiveIndex(index);
-  };
+  const { activeIndex, handleScroll } = usePaginationDots(
+    CARD_WIDTH,
+    SPACING,
+    rounds.length
+  );
 
   if (!user) {
     return (
@@ -59,9 +59,12 @@ export default function RoundHistoryScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#1B4332" />
-      </View>
+      <ScreenWrapper>
+        <View style={styles.loaderWrapper}>
+          <ActivityIndicator size="large" color="#1B4332" />
+          <Text style={styles.loadingText}>Loading Round History...</Text>
+        </View>
+      </ScreenWrapper>
     );
   }
 
@@ -111,55 +114,53 @@ export default function RoundHistoryScreen() {
       >
         Great job! You have logged {rounds.length} rounds of mental performance.
       </Text>
-      <ScrollView
-        horizontal
-        pagingEnabled
-        snapToInterval={CARD_WIDTH + SPACING}
-        snapToAlignment="center"
-        showsHorizontalScrollIndicator={false}
-        decelerationRate="fast"
-        contentContainerStyle={{ paddingHorizontal: SPACING / 2 }}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-      >
-        {rounds.map((round, i) => {
-          const groupedScores = groupByCategory(round.scores || {});
-          const roundDate =
-            round.createdAt?.toDate()?.toLocaleDateString() || "Unknown";
+      <View style={styles.container}>
+        <ScrollView
+          horizontal
+          pagingEnabled
+          snapToInterval={CARD_WIDTH + SPACING}
+          snapToAlignment="center"
+          showsHorizontalScrollIndicator={false}
+          decelerationRate="fast"
+          scrollEventThrottle={16}
+          onScroll={handleScroll}
+          contentContainerStyle={{
+            // paddingHorizontal: (screenWidth - CARD_WIDTH) / 2,
+            alignItems: "center", // helps align cards vertically
+          }}
+        >
+          {rounds.map((round, i) => {
+            const groupedScores = groupByCategory(round.scores || {});
+            const roundDate =
+              round.createdAt?.toDate()?.toLocaleDateString() || "Unknown";
 
-          return (
-            <View key={round.id} style={styles.card}>
-              <ScrollView
-                showsVerticalScrollIndicator={true}
-                contentContainerStyle={{ paddingBottom: 20 }}
-              >
-                <Text style={styles.roundTitle}>Round #{i + 1}</Text>
-                <Text style={styles.dateText}>{roundDate}</Text>
+            return (
+              <View key={round.id} style={styles.card}>
+                <ScrollView
+                  showsVerticalScrollIndicator={true}
+                  contentContainerStyle={{ paddingBottom: 20 }}
+                >
+                  <Text style={styles.roundTitle}>Round #{i + 1}</Text>
+                  <Text style={styles.dateText}>{roundDate}</Text>
 
-                {Object.entries(groupedScores).map(([category, items]) => (
-                  <View key={category} style={styles.categoryBlock}>
-                    <Text style={styles.category}>{category}</Text>
-                    {items.map(({ concept, score }) => (
-                      <View key={concept} style={styles.row}>
-                        <Text style={styles.concept}>{concept}</Text>
-                        <Text style={styles.score}>{score} / 3</Text>
-                      </View>
-                    ))}
-                  </View>
-                ))}
-              </ScrollView>
-            </View>
-          );
-        })}
-      </ScrollView>
-      <View style={styles.dotsContainer}>
-        {rounds.map((_, index) => (
-          <View
-            key={index}
-            style={[styles.dot, activeIndex === index && styles.activeDot]}
-          />
-        ))}
+                  {Object.entries(groupedScores).map(([category, items]) => (
+                    <View key={category} style={styles.categoryBlock}>
+                      <Text style={styles.category}>{category}</Text>
+                      {items.map(({ concept, score }) => (
+                        <View key={concept} style={styles.row}>
+                          <Text style={styles.concept}>{concept}</Text>
+                          <Text style={styles.score}>{score}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  ))}
+                </ScrollView>
+              </View>
+            );
+          })}
+        </ScrollView>
       </View>
+      <PaginationDots count={rounds.length} activeIndex={activeIndex} />
     </ScreenWrapper>
   );
 }
@@ -179,7 +180,7 @@ const styles = StyleSheet.create({
   card: {
     width: CARD_WIDTH,
     marginHorizontal: SPACING / 2,
-    height: 350, // optional: control height
+    height: 300, // optional: control height
     backgroundColor: "#1B4332",
     borderRadius: 8,
     padding: 20,
@@ -223,22 +224,15 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontWeight: "bold",
   },
-  dotsContainer: {
-    flexDirection: "row",
+  loaderWrapper: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingBottom: 20,
+    paddingTop: 40,
   },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#ccc",
-    marginHorizontal: 4,
-  },
-  activeDot: {
-    backgroundColor: "#1B4332",
-    width: 10,
-    height: 10,
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#2D6A4F",
   },
 });

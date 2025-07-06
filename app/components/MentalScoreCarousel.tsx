@@ -10,6 +10,9 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
+import { Pagination } from "react-native-snap-carousel";
+import PaginationDots from "./PaginationDots";
+import { usePaginationDots } from "../hooks/usePaginationDots";
 
 const { width: screenWidth } = Dimensions.get("window");
 const CARD_WIDTH = screenWidth * 0.6;
@@ -35,13 +38,13 @@ type Props = {
 const MentalScoreScrollPager = ({ scores }: Props) => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
-  const [activeIndex, setActiveIndex] = useState(0);
+  console.log("Scores:", scores.length);
 
-  const handleScroll = (event: any) => {
-    const offsetX = event.nativeEvent.contentOffset.x;
-    const index = Math.round(offsetX / (CARD_WIDTH + SPACING));
-    setActiveIndex(index);
-  };
+  const { activeIndex, handleScroll } = usePaginationDots(
+    CARD_WIDTH,
+    SPACING,
+    scores.length
+  );
 
   const toggleDetails = (category: string) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -57,6 +60,7 @@ const MentalScoreScrollPager = ({ scores }: Props) => {
         snapToAlignment="center"
         showsHorizontalScrollIndicator={false}
         decelerationRate="fast"
+        scrollEventThrottle={16}
         onScroll={handleScroll}
       >
         {scores.map((item) => (
@@ -84,14 +88,11 @@ const MentalScoreScrollPager = ({ scores }: Props) => {
           </View>
         ))}
       </ScrollView>
-      <View style={styles.dotsContainer}>
-        {scores.map((_, index) => (
-          <View
-            key={index}
-            style={[styles.dot, activeIndex === index && styles.activeDot]}
-          />
-        ))}
-      </View>
+      <PaginationDots
+        count={scores.length}
+        activeIndex={activeIndex}
+        maxVisible={7}
+      />
     </View>
   );
 };

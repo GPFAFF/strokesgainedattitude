@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+} from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { getDocs, collection } from "firebase/firestore";
 import { db } from "../firebase/config";
-
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 import useAuth from "../hooks/auth";
 import MentalScoreCarouselWithDetails from "../components/MentalScoreCarousel";
-import { ActivityIndicator } from "react-native-paper";
 import ScreenWrapper from "../components/ScreenWrapper";
 
 type RootStackParamList = {
@@ -30,51 +37,66 @@ export default function AdminDashboardScreen() {
 
   const [scores, setScores] = useState<Score[]>([]);
 
-  useEffect(() => {
+  useFocusEffect(
+    useCallback(() => {
+      loadStats();
+    }, [])
+  );
+
+  const loadStats = async () => {
     if (!user?.uid) return;
 
-    const loadStats = async () => {
-      setLoading(true);
-      try {
-        const snapshot = await getDocs(
-          collection(db, "mentalCategoryStats", user.uid, "categories")
-        );
+    setLoading(true);
+    try {
+      const snapshot = await getDocs(
+        collection(db, "mentalCategoryStats", user.uid, "categories")
+      );
 
-        console.log("Fetched stats:", snapshot.docs);
-        if (snapshot.empty) {
-          console.log("No stats found for this user.");
-          setScores([]);
-          return;
-        }
-        console.log("Stats snapshot:", snapshot);
-        // Transform the snapshot data into the desired format
-        const results = snapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            category: doc.id,
-            averageScore: data.average || 0,
-            concepts: Object.entries(data.concepts || {}).map(
-              ([concept, score]) => ({ concept, score })
-            ),
-          };
-        });
-
-        setScores(results);
-      } catch (e) {
-        console.error("Error fetching stats:", e);
-      } finally {
-        setLoading(false);
+      console.log("Fetched stats:", snapshot.docs);
+      if (snapshot.empty) {
+        console.log("No stats found for this user.");
+        setScores([]);
+        return;
       }
-    };
+      console.log("Stats snapshot:", snapshot);
+      // Transform the snapshot data into the desired format
+      const results = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          category: doc.id,
+          averageScore: data.average || 0,
+          concepts: Object.entries(data.concepts || {}).map(
+            ([concept, score]) => ({ concept, score })
+          ),
+        };
+      });
 
+      setScores(results);
+    } catch (e) {
+      console.error("Error fetching stats:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadStats();
   }, [user]);
 
+  useFocusEffect(
+    useCallback(() => {
+      loadStats();
+    }, [])
+  );
+
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#1B4332" />
-      </View>
+      <ScreenWrapper>
+        <View style={styles.loaderWrapper}>
+          <ActivityIndicator size="large" color="#1B4332" />
+          <Text style={styles.loadingText}>Loading charts...</Text>
+        </View>
+      </ScreenWrapper>
     );
   }
 
@@ -91,9 +113,6 @@ export default function AdminDashboardScreen() {
             height: 150,
             alignSelf: "center",
             borderRadius: 8,
-            // position: "absolute",
-            // top: 50,
-            // left: 20,
           }}
         />
 
@@ -109,7 +128,7 @@ export default function AdminDashboardScreen() {
           style={styles.button}
           onPress={() => navigation.navigate("MentalTracker")}
         >
-          <Text style={styles.buttonText}>Add Mental Round</Text>
+          <Text style={styles.buttonText}>Add Round</Text>
         </TouchableOpacity>
       </View>
     </ScreenWrapper>
@@ -147,5 +166,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  loaderWrapper: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingTop: 40,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#2D6A4F",
   },
 });

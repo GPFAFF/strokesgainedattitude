@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import { getAuth, updateProfile, signOut, deleteUser } from "firebase/auth";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { useSnackbar } from "../hooks/useSnackbar";
@@ -22,17 +29,15 @@ const ProfileScreen = ({ navigation }: any) => {
     try {
       await updateProfile(user, { displayName });
 
-      if (email !== user.email || handicap !== user?.handicap) {
-        await setDoc(
-          doc(db, "users", user.uid),
-          {
-            handicap: handicap || null,
-            email: email || user.email,
-            lastUpdated: serverTimestamp(),
-          },
-          { merge: true }
-        );
-      }
+      await setDoc(
+        doc(db, "users", user.uid),
+        {
+          handicap: handicap || null,
+          email: email || user.email,
+          lastUpdated: serverTimestamp(),
+        },
+        { merge: true }
+      );
 
       showSnackbar("Profile updated successfully", "success");
     } catch (err) {
@@ -68,25 +73,23 @@ const ProfileScreen = ({ navigation }: any) => {
 
   return (
     <ScreenWrapper>
-      <View style={styles.container}>
-        <Text style={styles.title}>Profile</Text>
+      <Text style={styles.header}>Profile</Text>
 
-        <Text style={styles.label}>Email:</Text>
-        <Text style={styles.text}>{user?.email}</Text>
+      <View style={styles.card}>
+        <Text style={styles.sectionTitle}>Account</Text>
 
-        <Text style={styles.label}>Display Name:</Text>
+        <Text style={styles.label}>Email</Text>
+        <Text style={styles.staticText}>{user?.email}</Text>
+
+        <Text style={styles.label}>Display Name</Text>
         <TextInput
           value={displayName}
           onChangeText={setDisplayName}
           style={styles.input}
           placeholder="Enter display name"
         />
-        <TextInput
-          value={email}
-          onChangeText={setEmail}
-          style={styles.input}
-          placeholder="Enter email"
-        />
+
+        <Text style={styles.label}>Handicap</Text>
         <TextInput
           value={handicap}
           onChangeText={setHandicap}
@@ -95,19 +98,32 @@ const ProfileScreen = ({ navigation }: any) => {
           keyboardType="numeric"
         />
 
-        <Button
-          title="Update Profile"
+        <TouchableOpacity
+          style={[styles.button, updating && styles.buttonDisabled]}
           onPress={handleUpdateProfile}
           disabled={updating}
-        />
-        <View style={styles.space} />
-        <Button title="Logout" onPress={handleLogout} color="#B91C1C" />
-        <View style={styles.space} />
-        <Button
-          title="Delete Account"
+        >
+          {updating ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Update Profile</Text>
+          )}
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.sectionTitle}>Actions</Text>
+
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutText}>Log Out</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.deleteButton}
           onPress={handleDeleteAccount}
-          color="#991B1B"
-        />
+        >
+          <Text style={styles.deleteText}>Delete Account</Text>
+        </TouchableOpacity>
       </View>
     </ScreenWrapper>
   );
@@ -116,34 +132,88 @@ const ProfileScreen = ({ navigation }: any) => {
 export default ProfileScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    backgroundColor: "#fff",
-  },
-  title: {
+  header: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#1B4332",
-    marginBottom: 20,
+    marginBottom: 16,
+    paddingHorizontal: 24,
+  },
+  card: {
+    backgroundColor: "#F1F5F2",
+    borderRadius: 12,
+    padding: 20,
+    marginHorizontal: 24,
+    marginBottom: 24,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#2D6A4F",
+    marginBottom: 16,
   },
   label: {
-    fontWeight: "bold",
-    marginTop: 16,
+    fontSize: 14,
+    color: "#4B5563",
     marginBottom: 4,
-    color: "#2D6A4F",
+    marginTop: 12,
   },
-  text: {
+  staticText: {
     fontSize: 16,
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 12,
+    color: "#1F2937",
+    backgroundColor: "#E5E7EB",
+    padding: 10,
     borderRadius: 8,
   },
-  space: {
-    height: 16,
+  input: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+  },
+  button: {
+    backgroundColor: "#1B4332",
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  buttonDisabled: {
+    backgroundColor: "#6B7280",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  logoutButton: {
+    backgroundColor: "#F59E0B",
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  logoutText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  deleteButton: {
+    backgroundColor: "#DC2626",
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 12,
+  },
+  deleteText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "500",
   },
 });

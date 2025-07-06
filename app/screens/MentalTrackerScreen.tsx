@@ -6,6 +6,7 @@ import {
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import Slider from "@react-native-community/slider";
 import mentalConcepts from "../data/mentalConcepts.json";
@@ -14,10 +15,17 @@ import useAuth from "../hooks/auth";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { useSnackbar } from "../hooks/useSnackbar";
+import { Pagination } from "react-native-snap-carousel";
+import PaginationDots from "../components/PaginationDots";
+import { usePaginationDots } from "../hooks/usePaginationDots";
+
+const { width: screenWidth } = Dimensions.get("window");
+const CARD_WIDTH = screenWidth * 0.85;
+const SPACING = 16;
 
 type RootStackParamList = {
   MentalTracker: undefined;
-  AdminDashboard: undefined;
+  AdminDashboard: { refresh: boolean };
 };
 
 type MentalTrackerScreen = NativeStackScreenProps<
@@ -35,26 +43,32 @@ const MentalTrackerScreen = ({ navigation }: MentalTrackerScreen) => {
 
   const showSnackbar = useSnackbar();
 
+  const { activeIndex, handleScroll } = usePaginationDots(
+    CARD_WIDTH,
+    SPACING,
+    trackableConcepts.length
+  );
+
   useEffect(() => {
     const filtered = mentalConcepts.filter((c) => c.trackable);
     setTrackableConcepts(filtered);
 
     const defaultScores: { [key: string]: number } = {};
     filtered.forEach((c) => {
-      defaultScores[c.concept] = 3;
+      defaultScores[c.concept] = 0;
     });
     setScores(defaultScores);
   }, []);
 
-  if (authLoading) return <ActivityIndicator size="large" color="#1B4332" />;
   if (!user) return <Text>Please log in</Text>;
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
       await saveMentalRound(user, scores);
+      navigation.navigate("AdminDashboard", { refresh: true });
+      setScores({});
       showSnackbar("Round saved successfully!", "success");
-      navigation.navigate("AdminDashboard");
     } catch (error) {
       console.error("Error saving round:", error);
     } finally {
@@ -69,48 +83,81 @@ const MentalTrackerScreen = ({ navigation }: MentalTrackerScreen) => {
     categoryMap[category].push({ concept });
   });
 
-  return (
-    <ScreenWrapper>
-      {loading ? (
+  if (loading || authLoading) {
+    return (
+      <ScreenWrapper>
         <View style={styles.loaderWrapper}>
           <ActivityIndicator size="large" color="#1B4332" />
           <Text style={styles.loadingText}>Saving round...</Text>
         </View>
-      ) : (
-        <ScrollView style={styles.container}>
-          <Text style={styles.title}>Mental Round Tracker</Text>
+      </ScreenWrapper>
+    );
+  }
 
-          {Object.entries(categoryMap).map(([category, items]) => (
-            <View key={category} style={styles.categoryBlock}>
-              <Text style={styles.categoryHeader}>{category}</Text>
-              {items.map(({ concept }) => (
-                <View key={concept} style={styles.sliderContainer}>
-                  <Text style={styles.conceptLabel}>
-                    {concept}: {scores[concept]}
-                  </Text>
-                  <Slider
-                    style={styles.slider}
-                    minimumValue={1}
-                    maximumValue={5}
-                    step={1}
-                    value={scores[concept]}
-                    onValueChange={(value) =>
-                      setScores((prev) => ({ ...prev, [concept]: value }))
-                    }
-                    minimumTrackTintColor="#1B4332"
-                    maximumTrackTintColor="#ccc"
-                    thumbTintColor="#1B4332"
-                  />
-                </View>
-              ))}
+  const categories = Object.entries(categoryMap);
+
+  return (
+    <ScreenWrapper>
+      <Text style={styles.title}>Mental Round Tracker</Text>
+
+      <View style={styles.container}>
+        <ScrollView
+          horizontal
+          pagingEnabled
+          snapToInterval={CARD_WIDTH + SPACING}
+          snapToAlignment="center"
+          showsHorizontalScrollIndicator={false}
+          decelerationRate="fast"
+          onScroll={handleScroll}
+          contentContainerStyle={{
+            // paddingHorizontal: (screenWidth - CARD_WIDTH) / 2,
+            alignItems: "center", // helps align cards vertically
+            justifyContent: "center",
+          }}
+        >
+          {categories.map(([category, items]) => (
+            <View key={category} style={styles.card}>
+              <Text style={styles.cardTitle}>{category}</Text>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.cardScroll}
+              >
+                {items.map(({ concept }) => (
+                  <View key={concept} style={styles.sliderContainer}>
+                    <Text style={styles.conceptLabel}>
+                      {concept}: {scores[concept]}
+                    </Text>
+                    <Slider
+                      style={styles.slider}
+                      minimumValue={1}
+                      maximumValue={5}
+                      step={1}
+                      value={scores[concept]}
+                      onValueChange={(value) =>
+                        setScores((prev) => ({ ...prev, [concept]: value }))
+                      }
+                      minimumTrackTintColor="#1B4332"
+                      maximumTrackTintColor="#ccc"
+                      thumbTintColor="#1B4332"
+                    />
+                  </View>
+                ))}
+              </ScrollView>
             </View>
           ))}
-
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.buttonText}>Save Round</Text>
-          </TouchableOpacity>
         </ScrollView>
-      )}
+      </View>
+      <PaginationDots
+        count={trackableConcepts.length}
+        activeIndex={activeIndex}
+      />
+      <TouchableOpacity
+        style={styles.submitButton}
+        disabled={!!scores.length}
+        onPress={handleSubmit}
+      >
+        <Text style={styles.buttonText}>Save Round</Text>
+      </TouchableOpacity>
     </ScreenWrapper>
   );
 };
@@ -119,24 +166,33 @@ export default MentalTrackerScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     padding: 24,
-    backgroundColor: "#fff",
+    alignItems: "center",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#1B4332",
-    marginBottom: 16,
+    marginVertical: 16,
+    textAlign: "center",
   },
-  categoryBlock: {
-    marginBottom: 32,
+  card: {
+    width: CARD_WIDTH,
+    height: Dimensions.get("window").height * 0.55, // 60% of screen height
+    backgroundColor: "#F1F5F2",
+    borderRadius: 8,
+    padding: 20,
+    marginHorizontal: SPACING / 2,
   },
-  categoryHeader: {
+  cardScroll: {
+    paddingBottom: 10,
+  },
+  cardTitle: {
     fontSize: 18,
     fontWeight: "600",
-    marginBottom: 12,
     color: "#2D6A4F",
+    marginBottom: 12,
+    textAlign: "center",
   },
   sliderContainer: {
     marginBottom: 20,
@@ -155,19 +211,22 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     marginTop: 20,
-    marginBottom: 40,
+    // marginBottom: 40,
+    marginHorizontal: 24,
   },
   buttonText: {
     color: "#fff",
     fontSize: 16,
   },
   loaderWrapper: {
-    marginTop: 20,
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
+    paddingTop: 40,
   },
   loadingText: {
     marginTop: 10,
-    color: "#2D6A4F",
     fontSize: 16,
+    color: "#2D6A4F",
   },
 });
