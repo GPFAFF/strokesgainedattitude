@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { getDocs, collection } from "firebase/firestore";
 import { db } from "../firebase/config";
 import useAuth from "../hooks/auth";
-import MentalScoreCarouselWithDetails from "./MentalScoreCarouselWithDetails"; // your carousel
+import MentalScoreCarouselWithDetails from "./MentalScoreCarouselWithDetails";
 
 const DashboardCarouselScreen = () => {
   const { user } = useAuth();

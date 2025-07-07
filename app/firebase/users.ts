@@ -8,6 +8,6 @@ export const createUserDocument = async (uid: string, email: string) => {
     email,
     createdAt: serverTimestamp(),
     profileComplete: false,
-    rounds: [], // optional: to reference saved round IDs
+    rounds: [],
   });
 };

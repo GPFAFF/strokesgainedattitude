@@ -13,7 +13,7 @@ import useAuthForm from "../hooks/useAuthForm";
 import ScreenWrapper from "../components/ScreenWrapper";
 
 import { NavigationProp } from "@react-navigation/native";
-import { useSnackbar } from "../hooks/useSnackbar";
+import { useSnackbar } from "../context/SnackbarContext"; // useSnackbar hook for showing message
 import { db } from "../firebase/config";
 import { doc, setDoc } from "firebase/firestore";
 
@@ -43,7 +43,10 @@ export default function SignupScreen({
       showSnackbar("Account created!", "success");
       navigation.navigate("AdminDashboard"); // or wherever you want to navigate
     } catch (error: any) {
-      showSnackbar("Signup Error", error ? error?.message : "Unknown error");
+      showSnackbar(
+        `Signup Error: ${error?.message || "Unknown error"}`,
+        "error"
+      );
     }
   };
 

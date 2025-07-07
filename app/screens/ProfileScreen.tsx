@@ -2,38 +2,53 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
+  Alert,
   TextInput,
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { getAuth, updateProfile, signOut, deleteUser } from "firebase/auth";
 import ScreenWrapper from "../components/ScreenWrapper";
-import { useSnackbar } from "../hooks/useSnackbar";
+import { useSnackbar } from "../context/SnackbarContext";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
+import useAuth from "../hooks/auth";
+import HeaderBar from "../components/HeaderBar";
 
 const ProfileScreen = ({ navigation }: any) => {
+  const { user } = useAuth();
   const auth = getAuth();
-  const user = auth.currentUser;
 
-  const [displayName, setDisplayName] = useState(user?.displayName || "");
+  const [displayName, setDisplayName] = useState(user?.auth?.displayName || "");
   const [email, setEmail] = useState(user?.email || "");
   const [handicap, setHandicap] = useState(user?.handicap?.toString() || "");
   const [updating, setUpdating] = useState(false);
   const showSnackbar = useSnackbar();
 
+  useEffect(() => {
+    if (user) {
+      setDisplayName(user.displayName || "");
+      setEmail(user.email || "");
+      setHandicap(user.handicap?.toString() || "");
+    }
+  }, [user]);
+
   const handleUpdateProfile = async () => {
-    if (!user) return;
+    const auth = getAuth();
+    const authUser = auth.currentUser;
+
+    if (!authUser) return;
+
     setUpdating(true);
     try {
-      await updateProfile(user, { displayName });
+      await updateProfile(authUser, { displayName });
 
       await setDoc(
-        doc(db, "users", user.uid),
+        doc(db, "users", authUser.uid),
         {
-          handicap: handicap || null,
-          email: email || user.email,
+          handicap: handicap ? Number(handicap) : null,
           lastUpdated: serverTimestamp(),
         },
         { merge: true }
@@ -41,7 +56,8 @@ const ProfileScreen = ({ navigation }: any) => {
 
       showSnackbar("Profile updated successfully", "success");
     } catch (err) {
-      showSnackbar("Error", (err as Error).message);
+      console.error("Profile update error:", err);
+      showSnackbar("An error occurred while updating the profile.", "error");
     } finally {
       setUpdating(false);
     }
@@ -53,27 +69,36 @@ const ProfileScreen = ({ navigation }: any) => {
   };
 
   const handleDeleteAccount = async () => {
-    showSnackbar("Delete Account", "Are you sure? This cannot be undone.", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await deleteUser(user);
-            showSnackbar("Deleted", "Your account has been deleted.");
-            navigation.replace("Signup");
-          } catch (err) {
-            showSnackbar("Error", (err as Error).message);
-          }
+    Alert.alert(
+      "Delete Account",
+      "Are you sure? This cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              if (user) {
+                await deleteUser(user);
+                showSnackbar("Your account has been deleted.", "success");
+                navigation.replace("Signup");
+              } else {
+                showSnackbar("User not logged in.", "error");
+              }
+            } catch (err) {
+              showSnackbar((err as Error).message, "error");
+            }
+          },
         },
-      },
-    ]);
+      ],
+      { cancelable: true }
+    );
   };
 
   return (
     <ScreenWrapper>
-      <Text style={styles.header}>Profile</Text>
+      <HeaderBar title="Profile" />
 
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Account</Text>

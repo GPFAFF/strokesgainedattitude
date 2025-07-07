@@ -26,7 +26,6 @@ export default function PaginationDots({
     }).start();
   }, [activeIndex]);
 
-  // translate the row to keep activeIndex centered
   const maxShift = DOT_FULL_WIDTH * (count - maxVisible);
   const translateX = animValue.interpolate({
     inputRange: [0, count - 1],

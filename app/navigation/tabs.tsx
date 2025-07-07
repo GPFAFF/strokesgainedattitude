@@ -18,8 +18,7 @@ export default function BottomTabs() {
         tabBarActiveTintColor: "#1B4332",
         tabBarInactiveTintColor: "#ccc",
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName: keyof typeof Ionicons.glyphMap = "help"; // Default icon
-
+          let iconName: keyof typeof Ionicons.glyphMap = "help";
           if (route.name === "Dashboard") {
             iconName = focused ? "golf" : "golf-outline";
           } else if (route.name === "Track") {

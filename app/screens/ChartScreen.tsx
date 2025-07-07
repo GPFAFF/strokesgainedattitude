@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
   StyleSheet,
+  FlatList,
   Dimensions,
   ScrollView,
   Image,
@@ -15,6 +16,8 @@ import ScreenWrapper from "../components/ScreenWrapper";
 import { usePaginationDots } from "../hooks/usePaginationDots";
 import PaginationDots from "../components/PaginationDots";
 import Loading from "../components/Loading";
+import HeaderBar from "../components/HeaderBar";
+import ChartCard from "../components/ChartCard";
 
 const { width: screenWidth } = Dimensions.get("window");
 const CARD_WIDTH = screenWidth * 0.85;
@@ -26,6 +29,12 @@ export default function ChartScreen() {
     { id: string; scores?: Record<string, number> }[]
   >([]);
   const [loading, setLoading] = useState(true);
+
+  const [visibleIndex, setVisibleIndex] = useState(0);
+  const viewConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
+  const onViewableItemsChanged = useRef(({ viewableItems }) => {
+    if (viewableItems.length) setVisibleIndex(viewableItems[0].index);
+  }).current;
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -81,23 +90,15 @@ export default function ChartScreen() {
     );
   }
 
+  console.log("concepts:", concepts);
+
   return (
     <ScreenWrapper>
-      <Text style={styles.title}>Mental Trends</Text>
-      <Image
-        source={require("../assets/logo.png")} // Adjust the path as needed
-        style={{
-          width: 150,
-          height: 150,
-          alignSelf: "center",
-          borderRadius: 8,
-          // position: "absolute",
-          // top: 50,
-          // left: 20,
-        }}
-      />
+      <HeaderBar title="Mental Game Charts" />
       <View style={styles.container}>
-        <ScrollView
+        <FlatList
+          data={concepts}
+          keyExtractor={(c) => c}
           horizontal
           pagingEnabled
           snapToInterval={CARD_WIDTH + SPACING}
@@ -105,40 +106,19 @@ export default function ChartScreen() {
           showsHorizontalScrollIndicator={false}
           decelerationRate="fast"
           contentContainerStyle={{ paddingHorizontal: SPACING / 2 }}
-          onScroll={handleScroll}
-          scrollEventThrottle={16}
-        >
-          {concepts.map((concept) => {
-            const data = rounds.map((r, i) => ({
-              value: r.scores?.[concept] ?? 0,
-              label: `R${i + 1}`,
-            }));
-
-            return (
-              <View key={concept} style={styles.card}>
-                <Text style={styles.chartTitle}>{concept}</Text>
-                <LineChart
-                  data={data}
-                  spacing={40}
-                  thickness={2}
-                  hideDataPoints={false}
-                  color="#1B4332"
-                  areaChart
-                  startFillColor="#74C69D"
-                  endFillColor="#D8F3DC"
-                  startOpacity={0.3}
-                  endOpacity={0}
-                  xAxisLabelTextStyle={{ color: "#000" }}
-                  yAxisTextStyle={{ color: "#000" }}
-                  yAxisLabelWidth={50}
-                  maxValue={5}
-                  noOfSections={5}
-                  isAnimated
-                />
-              </View>
-            );
-          })}
-        </ScrollView>
+          renderItem={({ item, index }) => (
+            <ChartCard
+              concept={item}
+              rounds={rounds}
+              animate={index === visibleIndex}
+            />
+          )}
+          initialNumToRender={1}
+          windowSize={3}
+          removeClippedSubviews
+          viewabilityConfig={viewConfig}
+          onViewableItemsChanged={onViewableItemsChanged}
+        />
       </View>
       <PaginationDots count={concepts.length} activeIndex={activeIndex} />
     </ScreenWrapper>
@@ -171,7 +151,7 @@ const styles = StyleSheet.create({
   card: {
     width: CARD_WIDTH,
     marginHorizontal: SPACING / 2,
-    height: 300,
+    height: Dimensions.get("window").height * 0.55, // 55% of screen height
     backgroundColor: "#F1F5F2",
     borderRadius: 12,
     padding: 10,

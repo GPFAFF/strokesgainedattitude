@@ -15,10 +15,11 @@ import { useCallback } from "react";
 import useAuth from "../hooks/auth";
 import MentalScoreCarouselWithDetails from "../components/MentalScoreCarousel";
 import ScreenWrapper from "../components/ScreenWrapper";
+import HeaderBar from "../components/HeaderBar";
 
 type RootStackParamList = {
   MentalTracker: undefined;
-  AdminDashboard: undefined; // Add MentalTracker to the stack
+  AdminDashboard: undefined;
   DataVisualization: undefined;
   ChartScreen: undefined;
 };
@@ -26,7 +27,7 @@ type RootStackParamList = {
 export default function AdminDashboardScreen() {
   const navigation = useNavigation() as NavigationProp<RootStackParamList>;
 
-  const { user } = useAuth(); // Assuming useAuth is a custom hook that provides user info
+  const { user } = useAuth();
 
   const [loading, setLoading] = useState(true);
   type Score = {
@@ -66,7 +67,7 @@ export default function AdminDashboardScreen() {
           category: doc.id,
           averageScore: data.average || 0,
           concepts: Object.entries(data.concepts || {}).map(
-            ([concept, score]) => ({ concept, score })
+            ([concept, score]) => ({ concept, score: Number(score) })
           ),
         };
       });
@@ -102,20 +103,8 @@ export default function AdminDashboardScreen() {
 
   return (
     <ScreenWrapper>
+      <HeaderBar title={`Welcome, ${user?.displayName || "Admin"}`} />
       <View style={styles.container}>
-        <Text style={styles.title}>
-          Welcome, {user?.displayName || "Admin"}!
-        </Text>
-        <Image
-          source={require("../assets/logo.png")} // Adjust the path as needed
-          style={{
-            width: 150,
-            height: 150,
-            alignSelf: "center",
-            borderRadius: 8,
-          }}
-        />
-
         <Text style={styles.title}>Your Mental Performance Trends</Text>
         <Text style={{ textAlign: "left", marginBottom: 20 }}>
           You have logged {scores.length} rounds of mental performance.

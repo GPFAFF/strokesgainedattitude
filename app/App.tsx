@@ -16,7 +16,7 @@ import AdminDashboardScreen from "./screens/AdminDashboardScreen";
 import { auth } from "./firebase/config";
 import useAuth from "./hooks/auth";
 import BottomTabs from "./navigation/tabs";
-import { SnackbarProvider } from "./hooks/useSnackbar";
+import { SnackbarProvider } from "./context/SnackbarContext";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -71,7 +71,7 @@ export default function App() {
               name="AdminDashboard"
               component={BottomTabs}
               options={{
-                headerShown: false, // Hide the header for the admin dashboard
+                headerShown: false,
               }}
             />
           </Stack.Navigator>

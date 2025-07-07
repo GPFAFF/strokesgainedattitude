@@ -13,11 +13,11 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { login } from "../services/authService";
 import useAuthForm from "../hooks/useAuthForm";
 import ScreenWrapper from "../components/ScreenWrapper";
-import { useSnackbar } from "../hooks/useSnackbar";
+import { useSnackbar } from "../context/SnackbarContext";
 
 type RootStackParamList = {
   LoginScreen: undefined;
-  AdminDashboard: undefined; // Add MentalTracker to the stack
+  AdminDashboard: undefined;
 };
 
 type LoginScreenProps = NativeStackScreenProps<
@@ -33,13 +33,9 @@ const LoginScreen = ({ navigation }: LoginScreenProps) => {
   const handleLogin = async () => {
     try {
       await login(email, password);
-      navigation.navigate("AdminDashboard"); // Navigate to Admin Dashboard after login
+      navigation.navigate("AdminDashboard");
     } catch (error: any) {
-      console.error("Login error:", error);
-      showSnackbar(
-        "An error occurred during login",
-        error?.message || "An error occurred during login"
-      );
+      showSnackbar("An error occurred during login", "error");
     }
   };
 

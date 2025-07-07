@@ -14,10 +14,12 @@ import { saveMentalRound } from "../services/saveRound";
 import useAuth from "../hooks/auth";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import ScreenWrapper from "../components/ScreenWrapper";
-import { useSnackbar } from "../hooks/useSnackbar";
+import { useSnackbar } from "../context/SnackbarContext";
 import { Pagination } from "react-native-snap-carousel";
 import PaginationDots from "../components/PaginationDots";
 import { usePaginationDots } from "../hooks/usePaginationDots";
+import { Header } from "@react-navigation/stack";
+import HeaderBar from "../components/HeaderBar";
 
 const { width: screenWidth } = Dimensions.get("window");
 const CARD_WIDTH = screenWidth * 0.85;
@@ -71,6 +73,10 @@ const MentalTrackerScreen = ({ navigation }: MentalTrackerScreen) => {
       showSnackbar("Round saved successfully!", "success");
     } catch (error) {
       console.error("Error saving round:", error);
+      showSnackbar(
+        "An error occurred while saving the round. Please try again.",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
@@ -98,7 +104,7 @@ const MentalTrackerScreen = ({ navigation }: MentalTrackerScreen) => {
 
   return (
     <ScreenWrapper>
-      <Text style={styles.title}>Mental Round Tracker</Text>
+      <HeaderBar title="Mental Round Tracker" />
 
       <View style={styles.container}>
         <ScrollView
@@ -110,8 +116,7 @@ const MentalTrackerScreen = ({ navigation }: MentalTrackerScreen) => {
           decelerationRate="fast"
           onScroll={handleScroll}
           contentContainerStyle={{
-            // paddingHorizontal: (screenWidth - CARD_WIDTH) / 2,
-            alignItems: "center", // helps align cards vertically
+            alignItems: "center",
             justifyContent: "center",
           }}
         >
@@ -178,7 +183,7 @@ const styles = StyleSheet.create({
   },
   card: {
     width: CARD_WIDTH,
-    height: Dimensions.get("window").height * 0.55, // 60% of screen height
+    height: Dimensions.get("window").height * 0.5,
     backgroundColor: "#F1F5F2",
     borderRadius: 8,
     padding: 20,

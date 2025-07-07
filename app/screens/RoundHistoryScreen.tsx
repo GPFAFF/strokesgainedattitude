@@ -13,6 +13,7 @@ import useAuth from "../hooks/auth";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { usePaginationDots } from "../hooks/usePaginationDots";
 import PaginationDots from "../components/PaginationDots";
+import HeaderBar from "../components/HeaderBar";
 
 const { width: screenWidth } = Dimensions.get("window");
 const CARD_WIDTH = screenWidth * 0.85;
@@ -96,24 +97,7 @@ export default function RoundHistoryScreen() {
 
   return (
     <ScreenWrapper>
-      <Text style={styles.title}>Round History</Text>
-      <Image
-        source={require("../assets/logo.png")} // Adjust the path as needed
-        style={{
-          width: 150,
-          height: 150,
-          alignSelf: "center",
-          borderRadius: 8,
-          // position: "absolute",
-          // top: 50,
-          // left: 20,
-        }}
-      />
-      <Text
-        style={{ textAlign: "center", marginBottom: 20, fontWeight: "700" }}
-      >
-        Great job! You have logged {rounds.length} rounds of mental performance.
-      </Text>
+      <HeaderBar title="Round History" />
       <View style={styles.container}>
         <ScrollView
           horizontal
@@ -126,7 +110,7 @@ export default function RoundHistoryScreen() {
           onScroll={handleScroll}
           contentContainerStyle={{
             // paddingHorizontal: (screenWidth - CARD_WIDTH) / 2,
-            alignItems: "center", // helps align cards vertically
+            alignItems: "center",
           }}
         >
           {rounds.map((round, i) => {
@@ -180,8 +164,8 @@ const styles = StyleSheet.create({
   card: {
     width: CARD_WIDTH,
     marginHorizontal: SPACING / 2,
-    height: 300, // optional: control height
-    backgroundColor: "#1B4332",
+    height: Dimensions.get("window").height * 0.55, // 55% of screen height
+    backgroundColor: "#F1F5F2",
     borderRadius: 8,
     padding: 20,
     shadowColor: "#000",
@@ -190,13 +174,13 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   roundTitle: {
-    color: "#fff",
+    color: "#1B4332",
     fontSize: 20,
     fontWeight: "600",
     marginBottom: 4,
   },
   dateText: {
-    color: "#cfcfcf",
+    color: "#4B5563",
     fontSize: 14,
     marginBottom: 12,
   },
@@ -204,7 +188,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   category: {
-    color: "#95D5B2",
+    color: "#2D6A4F",
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 6,
@@ -217,11 +201,11 @@ const styles = StyleSheet.create({
     borderBottomColor: "#2D6A4F",
   },
   concept: {
-    color: "#ffffff",
+    color: "#2D6A4F",
     fontSize: 14,
   },
   score: {
-    color: "#ffffff",
+    color: "#2D6A4F",
     fontWeight: "bold",
   },
   loaderWrapper: {

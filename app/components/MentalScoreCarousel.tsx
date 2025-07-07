@@ -13,6 +13,7 @@ import {
 import { Pagination } from "react-native-snap-carousel";
 import PaginationDots from "./PaginationDots";
 import { usePaginationDots } from "../hooks/usePaginationDots";
+import useAuth from "../hooks/auth";
 
 const { width: screenWidth } = Dimensions.get("window");
 const CARD_WIDTH = screenWidth * 0.6;
@@ -38,8 +39,7 @@ type Props = {
 const MentalScoreScrollPager = ({ scores }: Props) => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
-  console.log("Scores:", scores.length);
-
+  const { user } = useAuth();
   const { activeIndex, handleScroll } = usePaginationDots(
     CARD_WIDTH,
     SPACING,
