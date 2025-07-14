@@ -1,31 +1,16 @@
-import React from "react";
-import {
-  SafeAreaView,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-  ScrollView,
-  View,
-} from "react-native";
+import React, { ReactNode } from "react";
+import { SafeAreaView, StyleSheet, ScrollView, View } from "react-native";
+import { colors, spacing } from "../theme";
 
-export default function ScreenWrapper({ children }) {
+export default function ScreenWrapper({ children }: { children: ReactNode }) {
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* <KeyboardAvoidingView
-        style={styles.keyboardAvoid}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      > */}
-      {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}> */}
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.inner}>{children}</View>
       </ScrollView>
-      {/* </TouchableWithoutFeedback> */}
-      {/* </KeyboardAvoidingView> */}
     </SafeAreaView>
   );
 }
@@ -33,7 +18,8 @@ export default function ScreenWrapper({ children }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.warmTaupe,
+    marginTop: -24, // Adjust if needed for status bar
   },
   keyboardAvoid: {
     flex: 1,
@@ -43,6 +29,6 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-    // padding: 16,
+    padding: spacing.md,
   },
 });

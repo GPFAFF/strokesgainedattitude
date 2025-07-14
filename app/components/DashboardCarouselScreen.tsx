@@ -52,20 +52,19 @@ const DashboardCarouselScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Your Mental Performance Trends</Text>
+      <Text style={styles.title}>Your Mental Performance Trendsssss</Text>
       <MentalScoreCarouselWithDetails scores={scores} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", paddingTop: 16 },
+  container: { flex: 1, backgroundColor: "#fff" },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
     color: "#1B4332",
-    marginVertical: 12,
   },
   loadingContainer: {
     flex: 1,

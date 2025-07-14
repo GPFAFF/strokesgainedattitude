@@ -1,101 +1,51 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
   ActivityIndicator,
 } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
-import { getDocs, collection } from "firebase/firestore";
-import { db } from "../firebase/config";
-import { useFocusEffect } from "@react-navigation/native";
-import { useCallback } from "react";
-import useAuth from "../hooks/auth";
+import { useAuth } from "../hooks/auth";
+import { useUserProfile } from "../hooks/useUserProfile";
+import { useMentalCategoryStats } from "../hooks/useMentalCategoryStats";
 import MentalScoreCarouselWithDetails from "../components/MentalScoreCarousel";
 import ScreenWrapper from "../components/ScreenWrapper";
 import HeaderBar from "../components/HeaderBar";
+import { colors, spacing } from "../theme";
 
 type RootStackParamList = {
   MentalTracker: undefined;
-  AdminDashboard: undefined;
+  AdminDashboard: { screen: string };
   DataVisualization: undefined;
   ChartScreen: undefined;
 };
 
 export default function AdminDashboardScreen() {
-  const navigation = useNavigation() as NavigationProp<RootStackParamList>;
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const { user } = useAuth();
-
-  const [loading, setLoading] = useState(true);
-  type Score = {
-    category: string;
-    averageScore: number;
-    concepts: { concept: string; score: number }[];
-  };
-
-  const [scores, setScores] = useState<Score[]>([]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadStats();
-    }, [])
+  const { firebaseUser, authLoading } = useAuth();
+  const { data: userProfile, isLoading: profileLoading } = useUserProfile(
+    firebaseUser?.uid
   );
+  const {
+    data: scores = [],
+    isLoading: scoresLoading,
+    error,
+  } = useMentalCategoryStats(firebaseUser?.uid);
 
-  const loadStats = async () => {
-    if (!user?.uid) return;
-
-    setLoading(true);
-    try {
-      const snapshot = await getDocs(
-        collection(db, "mentalCategoryStats", user.uid, "categories")
-      );
-
-      console.log("Fetched stats:", snapshot.docs);
-      if (snapshot.empty) {
-        console.log("No stats found for this user.");
-        setScores([]);
-        return;
-      }
-      console.log("Stats snapshot:", snapshot);
-      // Transform the snapshot data into the desired format
-      const results = snapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          category: doc.id,
-          averageScore: data.average || 0,
-          concepts: Object.entries(data.concepts || {}).map(
-            ([concept, score]) => ({ concept, score: Number(score) })
-          ),
-        };
-      });
-
-      setScores(results);
-    } catch (e) {
-      console.error("Error fetching stats:", e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadStats();
-  }, [user]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadStats();
-    }, [])
-  );
+  const loading = authLoading || profileLoading || scoresLoading;
+  const user =
+    firebaseUser && userProfile ? { ...firebaseUser, ...userProfile } : null;
+  const roundsCount = userProfile?.rounds?.length || 0;
 
   if (loading) {
     return (
       <ScreenWrapper>
         <View style={styles.loaderWrapper}>
-          <ActivityIndicator size="large" color="#1B4332" />
-          <Text style={styles.loadingText}>Loading charts...</Text>
+          <ActivityIndicator size="large" color={colors.forestGreen} />
+          <Text style={styles.loadingText}>Loading Dashboard...</Text>
         </View>
       </ScreenWrapper>
     );
@@ -106,16 +56,26 @@ export default function AdminDashboardScreen() {
       <HeaderBar title={`Welcome, ${user?.displayName || "Admin"}`} />
       <View style={styles.container}>
         <Text style={styles.title}>Your Mental Performance Trends</Text>
-        <Text style={{ textAlign: "left", marginBottom: 20 }}>
-          You have logged {scores.length} rounds of mental performance.
+        <Text style={styles.paragraph}>
+          You have logged {roundsCount} rounds of mental performance.
         </Text>
-        <Text style={{ textAlign: "left", marginBottom: 20 }}>
+        <Text style={styles.paragraph}>
           Here are your average scores by category:
         </Text>
+
+        {error && (
+          <Text style={styles.errorText}>
+            Failed to load scores: {error.message}
+          </Text>
+        )}
+
         <MentalScoreCarouselWithDetails scores={scores} />
+
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate("MentalTracker")}
+          onPress={() =>
+            navigation.navigate("AdminDashboard", { screen: "Track" })
+          }
         >
           <Text style={styles.buttonText}>Add Round</Text>
         </TouchableOpacity>
@@ -127,34 +87,34 @@ export default function AdminDashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    padding: 24,
-    justifyContent: "center",
   },
   title: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#1B4332",
-    marginBottom: 32,
-    textAlign: "center",
+    color: colors.forestGreen,
+    marginBottom: spacing.lg,
+  },
+  paragraph: {
+    fontSize: 16,
+    color: colors.darkGray,
+    marginBottom: spacing.md,
+    textAlign: "left",
+  },
+  errorText: {
+    color: colors.errorRed,
+    marginBottom: spacing.md,
   },
   button: {
-    backgroundColor: "#1B4332",
-    padding: 16,
+    backgroundColor: colors.sunsetCoral,
+    padding: spacing.md,
     borderRadius: 10,
-    marginBottom: 20,
-    marginTop: 20,
+    marginTop: spacing.lg,
     alignItems: "center",
   },
   buttonText: {
     color: "#fff",
     fontSize: 16,
-    marginVertical: 10,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    fontWeight: "600",
   },
   loaderWrapper: {
     flex: 1,
@@ -165,6 +125,6 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: "#2D6A4F",
+    color: colors.forestGreen,
   },
 });

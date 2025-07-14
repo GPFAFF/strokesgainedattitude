@@ -9,23 +9,25 @@ import {
   Image,
 } from "react-native";
 import { fetchMentalRounds } from "../services/fetchMentalRound";
-import useAuth from "../hooks/auth";
+import { useAuth } from "../hooks/auth";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { usePaginationDots } from "../hooks/usePaginationDots";
 import PaginationDots from "../components/PaginationDots";
 import HeaderBar from "../components/HeaderBar";
+import { colors } from "../theme";
 
 const { width: screenWidth } = Dimensions.get("window");
-const CARD_WIDTH = screenWidth * 0.85;
+const CARD_WIDTH = screenWidth * 0.9;
 const SPACING = 16;
 
 export default function RoundHistoryScreen() {
-  const { user } = useAuth();
+  const { firebaseUser: user } = useAuth();
   const [rounds, setRounds] = useState<
     {
       id: string;
       createdAt?: { toDate: () => Date };
       scores?: Record<string, number>;
+      courseName?: string;
     }[]
   >([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -108,10 +110,6 @@ export default function RoundHistoryScreen() {
           decelerationRate="fast"
           scrollEventThrottle={16}
           onScroll={handleScroll}
-          contentContainerStyle={{
-            // paddingHorizontal: (screenWidth - CARD_WIDTH) / 2,
-            alignItems: "center",
-          }}
         >
           {rounds.map((round, i) => {
             const groupedScores = groupByCategory(round.scores || {});
@@ -126,10 +124,16 @@ export default function RoundHistoryScreen() {
                 >
                   <Text style={styles.roundTitle}>Round #{i + 1}</Text>
                   <Text style={styles.dateText}>{roundDate}</Text>
+                  <Text style={styles.dateText}>
+                    {round.courseName}
+                    <Text style={styles.subtitle}>
+                      {" "}
+                      ({round.tees.tee_name} {round.tees.par_total} Par)
+                    </Text>
+                  </Text>
 
                   {Object.entries(groupedScores).map(([category, items]) => (
                     <View key={category} style={styles.categoryBlock}>
-                      <Text style={styles.category}>{category}</Text>
                       {items.map(({ concept, score }) => (
                         <View key={concept} style={styles.row}>
                           <Text style={styles.concept}>{concept}</Text>
@@ -151,7 +155,6 @@ export default function RoundHistoryScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 24,
     alignItems: "center",
   },
   title: {
@@ -162,16 +165,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   card: {
+    backgroundColor: colors.whiteSmoke,
     width: CARD_WIDTH,
-    marginHorizontal: SPACING / 2,
-    height: Dimensions.get("window").height * 0.55, // 55% of screen height
-    backgroundColor: "#F1F5F2",
+    height: 500,
     borderRadius: 8,
     padding: 20,
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
     shadowColor: "#000",
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 4,
+    marginHorizontal: SPACING / 2,
   },
   roundTitle: {
     color: "#1B4332",

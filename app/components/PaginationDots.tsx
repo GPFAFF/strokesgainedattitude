@@ -27,6 +27,7 @@ export default function PaginationDots({
   }, [activeIndex]);
 
   const maxShift = DOT_FULL_WIDTH * (count - maxVisible);
+
   const translateX = animValue.interpolate({
     inputRange: [0, count - 1],
     outputRange: [0, -maxShift],

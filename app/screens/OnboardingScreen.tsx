@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import Logo from "../components/logo";
 import ScreenWrapper from "../components/ScreenWrapper";
+import { colors } from "../theme";
 type OnboardingScreenNavigationProp = StackNavigationProp<any, any>;
 
 export default function OnboardingScreen({
@@ -37,8 +38,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    paddingHorizontal: 24,
-    backgroundColor: "white",
+    backgroundColor: colors.warmTaupe,
   },
   title: {
     fontSize: 26,
@@ -61,11 +61,10 @@ const styles = StyleSheet.create({
   secondaryButton: {
     padding: 15,
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#2D6A4F",
+    backgroundColor: colors.whiteSmoke,
   },
   loginText: {
-    color: "#2D6A4F",
+    color: colors.forestGreen,
     textAlign: "center",
     fontWeight: "700",
   },

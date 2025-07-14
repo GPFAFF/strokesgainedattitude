@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
@@ -14,18 +13,10 @@ import { login } from "../services/authService";
 import useAuthForm from "../hooks/useAuthForm";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { useSnackbar } from "../context/SnackbarContext";
+import { colors } from "../theme";
+import { NavigationProp } from "@react-navigation/native";
 
-type RootStackParamList = {
-  LoginScreen: undefined;
-  AdminDashboard: undefined;
-};
-
-type LoginScreenProps = NativeStackScreenProps<
-  RootStackParamList,
-  "LoginScreen"
->;
-
-const LoginScreen = ({ navigation }: LoginScreenProps) => {
+const LoginScreen = ({ navigation }: { navigation: NavigationProp<any> }) => {
   const { email, password, setEmail, setPassword } = useAuthForm();
 
   const showSnackbar = useSnackbar();
@@ -43,7 +34,7 @@ const LoginScreen = ({ navigation }: LoginScreenProps) => {
     <ScreenWrapper>
       <View style={styles.container}>
         <Logo />
-        <Text style={styles.title}>Log In</Text>
+        <Text style={styles.title}>Login</Text>
         <TextInput
           placeholder="Email"
           style={styles.input}
@@ -68,9 +59,8 @@ export default LoginScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
     justifyContent: "center",
-    backgroundColor: "#fff",
+    backgroundColor: colors.warmTaupe,
   },
   title: {
     fontSize: 24,
@@ -81,6 +71,7 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: "#1B4332",
+    backgroundColor: colors.whiteSmoke,
     padding: 12,
     marginBottom: 16,
     borderRadius: 8,
@@ -95,5 +86,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     textAlign: "center",
+    fontWeight: "600",
   },
 });

@@ -1,501 +1,151 @@
 [
   {
-    "concept": "Confidence Control",
-    "category": "Recovery",
-    "trackable": true
-  },
-  {
-    "concept": "Decision Making Control",
-    "category": "Goal Setting",
-    "trackable": true
-  },
-  {
-    "concept": "Decision Making Cues",
-    "category": "Preparation",
-    "trackable": true
-  },
-  {
-    "concept": "Recovery Cues",
-    "category": "Acceptance",
-    "trackable": true
-  },
-  {
+    "card": 1,
     "concept": "Trust State",
     "category": "Commitment",
     "trackable": true
   },
   {
-    "concept": "Commitment Practice",
-    "category": "Patience",
-    "trackable": true
-  },
-  {
-    "concept": "Trust Cues",
-    "category": "Breathing",
-    "trackable": true
-  },
-  {
-    "concept": "Attentional Control Strategy",
-    "category": "Trust",
-    "trackable": true
-  },
-  {
-    "concept": "Routine Awareness",
-    "category": "Commitment",
-    "trackable": true
-  },
-  {
-    "concept": "Patience Control",
-    "category": "Emotional Control",
-    "trackable": true
-  },
-  {
-    "concept": "Routine State",
-    "category": "Pressure",
-    "trackable": true
-  },
-  {
-    "concept": "Trust Execution",
+    "card": 1,
+    "concept": "Confidence Control",
     "category": "Recovery",
     "trackable": true
   },
   {
-    "concept": "Preparation Awareness",
-    "category": "Routine",
-    "trackable": true
-  },
-  {
+    "card": 1,
     "concept": "Focus Execution",
     "category": "Pressure",
     "trackable": true
   },
   {
-    "concept": "Visualization Management",
-    "category": "Decision Making",
-    "trackable": true
-  },
-  {
-    "concept": "Attentional Control Practice",
-    "category": "Trust",
-    "trackable": true
-  },
-  {
-    "concept": "Confidence Strategy",
-    "category": "Focus",
-    "trackable": true
-  },
-  {
-    "concept": "Confidence Cues",
-    "category": "Awareness",
-    "trackable": true
-  },
-  {
-    "concept": "Self-Talk Strategy",
-    "category": "Focus",
-    "trackable": true
-  },
-  {
-    "concept": "Self-Talk Execution",
-    "category": "Pressure",
-    "trackable": true
-  },
-  {
-    "concept": "Emotional Control Strategy",
-    "category": "Trust",
-    "trackable": true
-  },
-  {
-    "concept": "Focus State",
-    "category": "Acceptance",
-    "trackable": true
-  },
-  {
-    "concept": "Goal Setting Awareness",
-    "category": "Focus",
-    "trackable": true
-  },
-  {
-    "concept": "Commitment Cues",
-    "category": "Awareness",
-    "trackable": true
-  },
-  {
-    "concept": "Body Language Practice",
-    "category": "Trust",
-    "trackable": true
-  },
-  {
+    "card": 1,
     "concept": "Routine Strategy",
     "category": "Pressure",
     "trackable": true
   },
   {
-    "concept": "Goal Setting State",
-    "category": "Confidence",
+    "card": 1,
+    "concept": "Decision Making Control",
+    "category": "Goal Setting",
     "trackable": true
   },
   {
-    "concept": "Decision Making Awareness",
-    "category": "Breathing",
-    "trackable": true
-  },
-  {
-    "concept": "Visualization Strategy",
-    "category": "Confidence",
-    "trackable": true
-  },
-  {
-    "concept": "Awareness State",
-    "category": "Decision Making",
-    "trackable": true
-  },
-  {
-    "concept": "Body Language Strategy",
-    "category": "Awareness",
-    "trackable": true
-  },
-  {
-    "concept": "Routine Management",
+    "card": 2,
+    "concept": "Preparation Awareness",
     "category": "Routine",
     "trackable": true
   },
   {
-    "concept": "Body Language State",
-    "category": "Tempo",
+    "card": 2,
+    "concept": "Commitment Cues",
+    "category": "Awareness",
     "trackable": true
   },
   {
-    "concept": "Recovery State",
-    "category": "Body Language",
+    "card": 2,
+    "concept": "Routine Awareness",
+    "category": "Commitment",
     "trackable": true
   },
   {
-    "concept": "Trust Strategy",
-    "category": "Visualization",
+    "card": 2,
+    "concept": "Decision Making Cues",
+    "category": "Preparation",
     "trackable": true
   },
   {
+    "card": 2,
     "concept": "Breathing Practice",
     "category": "Commitment",
     "trackable": true
   },
   {
-    "concept": "Body Language Awareness",
-    "category": "Awareness",
-    "trackable": true
-  },
-  {
-    "concept": "Commitment Awareness",
-    "category": "Self-Talk",
-    "trackable": true
-  },
-  {
-    "concept": "Patience Strategy",
-    "category": "Confidence",
-    "trackable": true
-  },
-  {
-    "concept": "Acceptance Strategy",
-    "category": "Commitment",
-    "trackable": true
-  },
-  {
-    "concept": "Confidence Practice",
-    "category": "Pressure",
-    "trackable": true
-  },
-  {
-    "concept": "Tempo Execution",
-    "category": "Tempo",
-    "trackable": true
-  },
-  {
-    "concept": "Visualization Cues",
+    "card": 3,
+    "concept": "Patience Control",
     "category": "Emotional Control",
     "trackable": true
   },
   {
+    "card": 3,
+    "concept": "Emotional Control Strategy",
+    "category": "Trust",
+    "trackable": true
+  },
+  {
+    "card": 3,
+    "concept": "Self-Talk Strategy",
+    "category": "Focus",
+    "trackable": true
+  },
+  {
+    "card": 3,
+    "concept": "Confidence Strategy",
+    "category": "Focus",
+    "trackable": true
+  },
+  {
+    "card": 3,
+    "concept": "Visualization Strategy",
+    "category": "Confidence",
+    "trackable": true
+  },
+  {
+    "card": 4,
+    "concept": "Routine State",
+    "category": "Pressure",
+    "trackable": true
+  },
+  {
+    "card": 4,
     "concept": "Pressure Practice",
     "category": "Recovery",
     "trackable": true
   },
   {
-    "concept": "Goal Setting Control",
-    "category": "Breathing",
+    "card": 4,
+    "concept": "Commitment Practice",
+    "category": "Patience",
     "trackable": true
   },
   {
-    "concept": "Focus Practice",
-    "category": "Goal Setting",
-    "trackable": true
-  },
-  {
-    "concept": "Attentional Control State",
-    "category": "Attentional Control",
-    "trackable": true
-  },
-  {
-    "concept": "Recovery Control",
-    "category": "Trust",
-    "trackable": true
-  },
-  {
-    "concept": "Tempo Awareness",
-    "category": "Trust",
-    "trackable": true
-  },
-  {
-    "concept": "Awareness Strategy",
-    "category": "Commitment",
-    "trackable": true
-  },
-  {
-    "concept": "Preparation Management",
-    "category": "Awareness",
-    "trackable": true
-  },
-  {
-    "concept": "Goal Setting Practice",
+    "card": 4,
+    "concept": "Recovery Cues",
     "category": "Acceptance",
     "trackable": true
   },
   {
-    "concept": "Routine Cues",
-    "category": "Acceptance",
-    "trackable": true
-  },
-  {
-    "concept": "Pressure Control",
-    "category": "Visualization",
-    "trackable": true
-  },
-  {
-    "concept": "Patience Awareness",
-    "category": "Body Language",
-    "trackable": true
-  },
-  {
-    "concept": "Commitment State",
+    "card": 4,
+    "concept": "Trust Execution",
     "category": "Recovery",
     "trackable": true
   },
   {
-    "concept": "Pressure Strategy",
-    "category": "Trust",
-    "trackable": true
-  },
-  {
-    "concept": "Commitment Management",
-    "category": "Pressure",
-    "trackable": true
-  },
-  {
-    "concept": "Pressure Awareness",
-    "category": "Confidence",
-    "trackable": true
-  },
-  {
-    "concept": "Emotional Control Awareness",
-    "category": "Routine",
-    "trackable": true
-  },
-  {
-    "concept": "Visualization State",
-    "category": "Focus",
-    "trackable": true
-  },
-  {
-    "concept": "Tempo Strategy",
-    "category": "Patience",
-    "trackable": true
-  },
-  {
-    "concept": "Patience Practice",
-    "category": "Visualization",
-    "trackable": true
-  },
-  {
-    "concept": "Emotional Control Control",
-    "category": "Preparation",
-    "trackable": true
-  },
-  {
-    "concept": "Acceptance Cues",
-    "category": "Breathing",
-    "trackable": true
-  },
-  {
-    "concept": "Patience State",
-    "category": "Visualization",
-    "trackable": true
-  },
-  {
-    "concept": "Goal Setting Management",
-    "category": "Attentional Control",
-    "trackable": true
-  },
-  {
-    "concept": "Acceptance Control",
-    "category": "Focus",
-    "trackable": true
-  },
-  {
-    "concept": "Recovery Management",
-    "category": "Visualization",
-    "trackable": true
-  },
-  {
-    "concept": "Focus Strategy",
-    "category": "Recovery",
-    "trackable": true
-  },
-  {
-    "concept": "Preparation Practice",
-    "category": "Body Language",
-    "trackable": true
-  },
-  {
-    "concept": "Self-Talk Management",
-    "category": "Body Language",
-    "trackable": true
-  },
-  {
-    "concept": "Preparation Cues",
-    "category": "Focus",
-    "trackable": true
-  },
-  {
-    "concept": "Confidence Execution",
-    "category": "Patience",
-    "trackable": true
-  },
-  {
-    "concept": "Tempo Control",
-    "category": "Confidence",
-    "trackable": true
-  },
-  {
-    "concept": "Breathing State",
-    "category": "Acceptance",
-    "trackable": true
-  },
-  {
-    "concept": "Confidence State",
-    "category": "Tempo",
-    "trackable": true
-  },
-  {
-    "concept": "Body Language Management",
-    "category": "Trust",
-    "trackable": true
-  },
-  {
-    "concept": "Breathing Control",
-    "category": "Routine",
-    "trackable": true
-  },
-  {
-    "concept": "Decision Making Practice",
-    "category": "Patience",
-    "trackable": true
-  },
-  {
-    "concept": "Body Language Cues",
-    "category": "Patience",
-    "trackable": true
-  },
-  {
-    "concept": "Patience Cues",
-    "category": "Goal Setting",
-    "trackable": true
-  },
-  {
-    "concept": "Breathing Awareness",
-    "category": "Recovery",
-    "trackable": true
-  },
-  {
-    "concept": "Tempo Practice",
-    "category": "Breathing",
-    "trackable": true
-  },
-  {
-    "concept": "Routine Control",
-    "category": "Pressure",
-    "trackable": true
-  },
-  {
-    "concept": "Recovery Strategy",
+    "card": 5,
+    "concept": "Awareness State",
     "category": "Decision Making",
     "trackable": true
   },
   {
-    "concept": "Attentional Control Awareness",
-    "category": "Preparation",
-    "trackable": true
-  },
-  {
-    "concept": "Decision Making Management",
-    "category": "Visualization",
-    "trackable": true
-  },
-  {
-    "concept": "Visualization Awareness",
-    "category": "Confidence",
-    "trackable": true
-  },
-  {
-    "concept": "Routine Execution",
-    "category": "Acceptance",
-    "trackable": true
-  },
-  {
-    "concept": "Goal Setting Execution",
-    "category": "Breathing",
-    "trackable": true
-  },
-  {
-    "concept": "Attentional Control Cues",
-    "category": "Acceptance",
-    "trackable": true
-  },
-  {
-    "concept": "Preparation Strategy",
-    "category": "Breathing",
-    "trackable": true
-  },
-  {
-    "concept": "Tempo State",
+    "card": 5,
+    "concept": "Visualization Management",
     "category": "Decision Making",
     "trackable": true
   },
   {
-    "concept": "Self-Talk Control",
+    "card": 5,
+    "concept": "Attentional Control Strategy",
+    "category": "Trust",
+    "trackable": true
+  },
+  {
+    "card": 5,
+    "concept": "Goal Setting Awareness",
     "category": "Focus",
     "trackable": true
   },
   {
-    "concept": "Awareness Control",
-    "category": "Attentional Control",
-    "trackable": true
-  },
-  {
-    "concept": "Decision Making Strategy",
-    "category": "Tempo",
-    "trackable": true
-  },
-  {
-    "concept": "Trust Control",
-    "category": "Routine",
-    "trackable": true
-  },
-  {
-    "concept": "Focus Awareness",
-    "category": "Acceptance",
-    "trackable": true
-  },
-  {
-    "concept": "Self-Talk State",
+    "card": 5,
+    "concept": "Body Language Awareness",
     "category": "Awareness",
     "trackable": true
   }

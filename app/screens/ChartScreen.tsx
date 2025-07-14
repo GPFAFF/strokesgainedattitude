@@ -11,11 +11,10 @@ import {
 } from "react-native";
 import { fetchMentalRounds } from "../services/fetchMentalRound";
 import { LineChart } from "react-native-gifted-charts";
-import useAuth from "../hooks/auth";
+import { useAuth } from "../hooks/auth";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { usePaginationDots } from "../hooks/usePaginationDots";
 import PaginationDots from "../components/PaginationDots";
-import Loading from "../components/Loading";
 import HeaderBar from "../components/HeaderBar";
 import ChartCard from "../components/ChartCard";
 
@@ -24,7 +23,7 @@ const CARD_WIDTH = screenWidth * 0.85;
 const SPACING = 16;
 
 export default function ChartScreen() {
-  const { user } = useAuth();
+  const { firebaseUser: user } = useAuth();
   const [rounds, setRounds] = useState<
     { id: string; scores?: Record<string, number> }[]
   >([]);
@@ -32,9 +31,13 @@ export default function ChartScreen() {
 
   const [visibleIndex, setVisibleIndex] = useState(0);
   const viewConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
-  const onViewableItemsChanged = useRef(({ viewableItems }) => {
-    if (viewableItems.length) setVisibleIndex(viewableItems[0].index);
-  }).current;
+  const onViewableItemsChanged = useRef(
+    ({ viewableItems }: { viewableItems: Array<{ index: number | null }> }) => {
+      if (viewableItems.length && viewableItems[0].index !== null) {
+        setVisibleIndex(viewableItems[0].index);
+      }
+    }
+  ).current;
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -64,7 +67,7 @@ export default function ChartScreen() {
   if (!user) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Please log in to view charts</Text>
+        <Text style={styles.title}>Please login to view charts</Text>
       </View>
     );
   }

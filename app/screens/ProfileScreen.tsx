@@ -14,53 +14,31 @@ import ScreenWrapper from "../components/ScreenWrapper";
 import { useSnackbar } from "../context/SnackbarContext";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
-import useAuth from "../hooks/auth";
+import { useAuth } from "../hooks/auth";
 import HeaderBar from "../components/HeaderBar";
+import { useUserProfile } from "../hooks/useUserProfile";
+import { useUpdateUserProfile } from "../hooks/useUpdateUser";
+import useUserProfileForm from "../hooks/useUserProfileForm";
 
 const ProfileScreen = ({ navigation }: any) => {
-  const { user } = useAuth();
+  const { firebaseUser, authLoading } = useAuth();
+  const { data: userProfile, isLoading: profileLoading } = useUserProfile(
+    firebaseUser?.uid
+  );
+
+  const user =
+    firebaseUser && userProfile ? { ...firebaseUser, ...userProfile } : null;
   const auth = getAuth();
 
-  const [displayName, setDisplayName] = useState(user?.auth?.displayName || "");
-  const [email, setEmail] = useState(user?.email || "");
-  const [handicap, setHandicap] = useState(user?.handicap?.toString() || "");
-  const [updating, setUpdating] = useState(false);
+  const { displayName, setDisplayName, email, handicap, setHandicap } =
+    useUserProfileForm(user);
+
+  const { handleUpdateProfile, updating } = useUpdateUserProfile();
+
   const showSnackbar = useSnackbar();
 
-  useEffect(() => {
-    if (user) {
-      setDisplayName(user.displayName || "");
-      setEmail(user.email || "");
-      setHandicap(user.handicap?.toString() || "");
-    }
-  }, [user]);
-
-  const handleUpdateProfile = async () => {
-    const auth = getAuth();
-    const authUser = auth.currentUser;
-
-    if (!authUser) return;
-
-    setUpdating(true);
-    try {
-      await updateProfile(authUser, { displayName });
-
-      await setDoc(
-        doc(db, "users", authUser.uid),
-        {
-          handicap: handicap ? Number(handicap) : null,
-          lastUpdated: serverTimestamp(),
-        },
-        { merge: true }
-      );
-
-      showSnackbar("Profile updated successfully", "success");
-    } catch (err) {
-      console.error("Profile update error:", err);
-      showSnackbar("An error occurred while updating the profile.", "error");
-    } finally {
-      setUpdating(false);
-    }
+  const onSubmit = async () => {
+    await handleUpdateProfile({ displayName, handicap });
   };
 
   const handleLogout = async () => {
@@ -125,7 +103,7 @@ const ProfileScreen = ({ navigation }: any) => {
 
         <TouchableOpacity
           style={[styles.button, updating && styles.buttonDisabled]}
-          onPress={handleUpdateProfile}
+          onPress={onSubmit}
           disabled={updating}
         >
           {updating ? (
@@ -161,15 +139,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "#1B4332",
-    marginBottom: 16,
-    paddingHorizontal: 24,
   },
   card: {
     backgroundColor: "#F1F5F2",
     borderRadius: 12,
     padding: 20,
-    marginHorizontal: 24,
-    marginBottom: 24,
+    width: "100%",
+    marginBottom: 8,
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 4,

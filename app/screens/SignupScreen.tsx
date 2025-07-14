@@ -16,6 +16,7 @@ import { NavigationProp } from "@react-navigation/native";
 import { useSnackbar } from "../context/SnackbarContext"; // useSnackbar hook for showing message
 import { db } from "../firebase/config";
 import { doc, setDoc } from "firebase/firestore";
+import { colors } from "../theme";
 
 export default function SignupScreen({
   navigation,
@@ -82,7 +83,7 @@ export default function SignupScreen({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 20 },
+  container: { flex: 1, justifyContent: "center" },
   title: {
     fontSize: 24,
     marginBottom: 20,
@@ -96,6 +97,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 8,
     color: "#1B4332",
+    backgroundColor: colors.whiteSmoke,
   },
   button: {
     backgroundColor: "#1B4332",
