@@ -14,6 +14,7 @@ import MentalScoreCarouselWithDetails from "../components/MentalScoreCarousel";
 import ScreenWrapper from "../components/ScreenWrapper";
 import HeaderBar from "../components/HeaderBar";
 import { colors, spacing } from "../theme";
+import { UserProfile } from "firebase/auth";
 
 type RootStackParamList = {
   MentalTracker: undefined;
@@ -36,30 +37,26 @@ export default function AdminDashboardScreen() {
   } = useMentalCategoryStats(firebaseUser?.uid);
 
   const loading = authLoading || profileLoading || scoresLoading;
+
   const user =
     firebaseUser && userProfile ? { ...firebaseUser, ...userProfile } : null;
 
-  const roundsCount = user?.rounds?.length || 0;
-
-  if (loading) {
-    return (
-      <ScreenWrapper>
-        <View style={styles.loaderWrapper}>
-          <ActivityIndicator size="large" color={colors.forestGreen} />
-          <Text style={styles.loadingText}>Loading Dashboard...</Text>
-        </View>
-      </ScreenWrapper>
-    );
-  }
+  const roundsCount = userProfile?.rounds?.length || 0;
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper loading={loading}>
       <HeaderBar title={`Trends`} />
       <View style={styles.container}>
         <Text style={styles.paragraph}>
-          You have logged{" "}
-          <Text style={{ fontWeight: "bold" }}>{roundsCount}</Text> rounds of
-          mental performance.
+          <Text
+            style={{
+              fontWeight: "bold",
+              fontSize: 20,
+            }}
+          >
+            {roundsCount}
+          </Text>{" "}
+          rounds tracking your mental performance.
         </Text>
         <Text style={styles.paragraph}>
           Here are your average scores by category:
@@ -98,12 +95,12 @@ const styles = StyleSheet.create({
   },
   paragraph: {
     fontSize: 16,
-    color: colors.darkGray,
-    marginBottom: spacing.md,
+    color: colors.charcoal,
+    marginBottom: spacing.sm,
     textAlign: "left",
   },
   errorText: {
-    color: colors.errorRed,
+    color: colors.red,
     marginBottom: spacing.md,
   },
   button: {

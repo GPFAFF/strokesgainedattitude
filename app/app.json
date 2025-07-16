@@ -25,7 +25,7 @@
       "package": "com.anonymous.strokesgainedattitude"
     },
     "web": {
-      "favicon": "./assets/logo.png"
+      "favicon": "../app/assets/logo.png"
     },
     "extra": {
       "firebaseApiKey": "AIzaSyAjwW0H-QdMBN60hj9bbKjZrcAaWmcZJEo",

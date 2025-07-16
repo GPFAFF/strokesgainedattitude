@@ -6,7 +6,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
 } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import Fuse from "fuse.js";
@@ -32,9 +31,6 @@ export default function CourseSearchBar({
   const debouncedQuery = useDebounce(query, 400);
 
   const { data = [], isFetching } = useCourseSearch(debouncedQuery);
-
-  console.log("🔥 CourseSearchBar raw data:", data);
-  console.log("🔍 Current query:", debouncedQuery, "| isFetching:", isFetching);
 
   useEffect(() => {
     if (data.length === 0 && query.trim().length > 2) {

@@ -3,7 +3,6 @@ import "react-native-reanimated";
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
 
 import OnboardingScreen from "./screens/OnboardingScreen";
 import LoginScreen from "./screens/LoginScreen";
@@ -12,9 +11,7 @@ import MentalTrackerScreen from "./screens/MentalTrackerScreen";
 import DataVisualizationScreen from "./screens/DataVisualizationScreen";
 import RoundHistoryScreen from "./screens/RoundHistoryScreen";
 import ChartScreen from "./screens/ChartScreen";
-import AdminDashboardScreen from "./screens/AdminDashboardScreen";
-import { auth } from "./firebase/config";
-import useAuth from "./hooks/auth";
+
 import BottomTabs from "./navigation/tabs";
 import { SnackbarProvider } from "./context/SnackbarContext";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -23,6 +20,7 @@ import { queryClient } from "./lib/queryClient";
 import AddCourseScreen from "./screens/AddCourseScreen";
 import { colors } from "./theme";
 import SelectCourseScreen from "./screens/SelectCourseScreen";
+import { Course, Tee } from "./lib/types";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -37,23 +35,10 @@ type RootStackParamList = {
   AdminDashboard: undefined;
   AddCourse: undefined;
   SelectCourse: {
-    onSelect: (payload: { course: any; tee: any }) => void;
+    onSelect: (payload: { course: Course; tee: Tee }) => void;
     onAddCourse?: (query: string) => void;
   };
 };
-
-function ProtectedAdminScreen() {
-  const { user, authLoading } = useAuth();
-
-  if (authLoading) {
-    return <ActivityIndicator />;
-  }
-
-  if (!user) {
-    return <Text style={{ margin: 20 }}>Unauthorized - Admins Only</Text>;
-  }
-  return <AdminDashboardScreen />;
-}
 
 const MainStack = createNativeStackNavigator();
 const RootStack = createNativeStackNavigator();

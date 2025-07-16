@@ -6,7 +6,8 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.4",
@@ -18,7 +19,9 @@
     "@react-navigation/stack": "^7.4.2",
     "@shopify/flash-list": "^1.8.3",
     "@tanstack/react-query": "^5.81.5",
+    "@tanstack/react-query-devtools": "^5.83.0",
     "expo": "~53.0.16",
+    "expo-crypto": "~14.1.5",
     "expo-linear-gradient": "^14.1.5",
     "expo-status-bar": "~2.2.3",
     "firebase": "^11.10.0",
@@ -37,18 +40,24 @@
     "react-native-reanimated-carousel": "^4.0.2",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
+    "react-native-skeleton-placeholder": "^5.2.4",
     "react-native-snap-carousel": "^3.9.1",
     "react-native-svg": "15.11.2",
     "react-native-web": "^0.20.0",
-    "victory-native": "^41.17.4",
-    "expo-crypto": "~14.1.5"
+    "victory-native": "^41.17.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@eslint/js": "^9.31.0",
     "@types/react": "~19.0.10",
     "@types/react-native-snap-carousel": "^3.8.11",
     "@types/react-navigation": "^3.4.0",
-    "typescript": "~5.8.3"
+    "@typescript-eslint/eslint-plugin": "^8.37.0",
+    "@typescript-eslint/parser": "^8.37.0",
+    "eslint": "^9.31.0",
+    "eslint-config-prettier": "^10.1.5",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.37.0"
   },
   "private": true
 }
