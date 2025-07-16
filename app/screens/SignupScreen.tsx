@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -6,17 +6,18 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { login, signUp } from "../services/authService"; // from your auth.js
-import { createUserDocument } from "../firebase/users"; // see below
+import { signUp } from "../services/authService";
+import { createUserDocument } from "../firebase/users";
 import Logo from "../components/logo";
 import useAuthForm from "../hooks/useAuthForm";
 import ScreenWrapper from "../components/ScreenWrapper";
 
 import { NavigationProp } from "@react-navigation/native";
-import { useSnackbar } from "../context/SnackbarContext"; // useSnackbar hook for showing message
+import { useSnackbar } from "../context/SnackbarContext";
 import { db } from "../firebase/config";
 import { doc, setDoc } from "firebase/firestore";
 import { colors } from "../theme";
+import HeaderBar from "../components/HeaderBar";
 
 export default function SignupScreen({
   navigation,
@@ -32,7 +33,7 @@ export default function SignupScreen({
       const userCredential = await signUp(email, password);
       const { uid } = userCredential;
 
-      await createUserDocument(uid, email); // create Firestore doc
+      await createUserDocument(uid, email);
       await setDoc(
         doc(db, "users", uid),
         {
@@ -42,7 +43,7 @@ export default function SignupScreen({
       );
 
       showSnackbar("Account created!", "success");
-      navigation.navigate("AdminDashboard"); // or wherever you want to navigate
+      navigation.navigate("AdminDashboard");
     } catch (error: any) {
       showSnackbar(
         `Signup Error: ${error?.message || "Unknown error"}`,
@@ -57,6 +58,7 @@ export default function SignupScreen({
 
   return (
     <ScreenWrapper>
+      <HeaderBar showIcon={false} />
       <View style={styles.container}>
         <Logo />
         <Text style={styles.title}>Create an Account</Text>
@@ -91,8 +93,6 @@ const styles = StyleSheet.create({
     color: "#1B4332",
   },
   input: {
-    borderWidth: 1,
-    borderColor: "#1B4332",
     padding: 12,
     marginBottom: 16,
     borderRadius: 8,
@@ -109,6 +109,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     textAlign: "center",
+    fontWeight: "600",
   },
   secondaryButton: {
     padding: 15,

@@ -1,22 +1,21 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   Dimensions,
-  ScrollView,
-  Image,
   ActivityIndicator,
 } from "react-native";
-import { fetchMentalRounds } from "../services/fetchMentalRound";
-import { LineChart } from "react-native-gifted-charts";
+
 import { useAuth } from "../hooks/auth";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { usePaginationDots } from "../hooks/usePaginationDots";
 import PaginationDots from "../components/PaginationDots";
 import HeaderBar from "../components/HeaderBar";
 import ChartCard from "../components/ChartCard";
+import { colors } from "../theme";
+import { useMentalRounds } from "../hooks/useMentalRounds";
 
 const { width: screenWidth } = Dimensions.get("window");
 const CARD_WIDTH = screenWidth * 0.85;
@@ -24,10 +23,6 @@ const SPACING = 16;
 
 export default function ChartScreen() {
   const { firebaseUser: user } = useAuth();
-  const [rounds, setRounds] = useState<
-    { id: string; scores?: Record<string, number> }[]
-  >([]);
-  const [loading, setLoading] = useState(true);
 
   const [visibleIndex, setVisibleIndex] = useState(0);
   const viewConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
@@ -39,24 +34,10 @@ export default function ChartScreen() {
     }
   ).current;
 
-  useEffect(() => {
-    if (!user?.uid) return;
+  const { data = [], isLoading: roundsLoading } = useMentalRounds(user);
 
-    const loadRounds = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchMentalRounds(user);
-        setRounds(data);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadRounds();
-  }, [user]);
-
-  const labels = rounds.map((_, i) => `R${i + 1}`);
-  const concepts = Object.keys(rounds[0]?.scores || {});
+  const labels = data.map((_, i) => `R${i + 1}`);
+  const concepts = Object.keys(data[0]?.scores || {});
 
   const { activeIndex, handleScroll } = usePaginationDots(
     CARD_WIDTH,
@@ -72,7 +53,7 @@ export default function ChartScreen() {
     );
   }
 
-  if (loading) {
+  if (roundsLoading) {
     return (
       <ScreenWrapper>
         <View style={styles.loaderWrapper}>
@@ -83,7 +64,7 @@ export default function ChartScreen() {
     );
   }
 
-  if (rounds.length === 0) {
+  if (data.length === 0) {
     return (
       <ScreenWrapper>
         <View style={styles.container}>
@@ -97,7 +78,7 @@ export default function ChartScreen() {
 
   return (
     <ScreenWrapper>
-      <HeaderBar title="Mental Game Charts" />
+      <HeaderBar title="Charts" />
       <View style={styles.container}>
         <FlatList
           data={concepts}
@@ -108,17 +89,17 @@ export default function ChartScreen() {
           snapToAlignment="center"
           showsHorizontalScrollIndicator={false}
           decelerationRate="fast"
-          contentContainerStyle={{ paddingHorizontal: SPACING / 2 }}
+          onScroll={handleScroll}
           renderItem={({ item, index }) => (
             <ChartCard
               concept={item}
-              rounds={rounds}
+              rounds={data}
               animate={index === visibleIndex}
             />
           )}
           initialNumToRender={1}
           windowSize={3}
-          removeClippedSubviews
+          // removeClippedSubviews
           viewabilityConfig={viewConfig}
           onViewableItemsChanged={onViewableItemsChanged}
         />
@@ -130,7 +111,6 @@ export default function ChartScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 24,
     alignItems: "center",
   },
   loaderWrapper: {
@@ -153,9 +133,9 @@ const styles = StyleSheet.create({
   },
   card: {
     width: CARD_WIDTH,
-    marginHorizontal: SPACING / 2,
-    height: Dimensions.get("window").height * 0.55, // 55% of screen height
-    backgroundColor: "#F1F5F2",
+    // marginHorizontal: SPACING / 2,
+    height: Dimensions.get("window").height * 0.55,
+    backgroundColor: colors.warmTaupe,
     borderRadius: 12,
     padding: 10,
     alignItems: "center",

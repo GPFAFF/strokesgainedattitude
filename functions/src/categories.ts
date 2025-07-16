@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions/v1";
-import {admin} from "./initFirebase";
+import { admin } from "./initFirebase";
 import mentalConcepts from "./mentalConcepts.json";
 
 type Scores = Record<string, number>;
@@ -16,7 +16,6 @@ interface CategoryStats {
   average: number;
 }
 
-// Build category lookup from concepts
 const categoryMap: Record<string, string> = {};
 (mentalConcepts as any[]).forEach((item) => {
   categoryMap[item.concept] = item.category;
@@ -28,7 +27,7 @@ export const aggregateMentalCategories = functions.firestore
     const round = snap.data() as Round;
     if (!round?.uid || !round?.scores) return;
 
-    const {uid, scores} = round;
+    const { uid, scores } = round;
     const userStatsRef = admin
       .firestore()
       .collection("mentalCategoryStats")

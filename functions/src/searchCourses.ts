@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions/v1";
-import {admin} from "./initFirebase";
+import { admin } from "./initFirebase";
 import fetch from "node-fetch";
 
 const API_KEY =
@@ -30,7 +30,7 @@ const api = (path: string) =>
  * @return {Promise<any[]>} - Array of course objects from API
  */
 async function searchCoursesAPI(query: string): Promise<any[]> {
-  const qs = new URLSearchParams({search_query: query});
+  const qs = new URLSearchParams({ search_query: query });
   const res = await api(`/search?${qs.toString()}`);
   if (!res.ok) {
     const text = await res.text();
@@ -50,7 +50,8 @@ async function searchCoursesAPI(query: string): Promise<any[]> {
  * Cloud Function: searchCourses
  * Searches for golf courses by a user-provided string (name, city, etc.).
  * Caches results in Firestore under `/courses/{id}` for future reuse.
- *
+ * Ensures deduplication and marks API courses with `isCustom: false`
+ * Prioritizes custom user-added courses when duplicates are found.
  * @param {object} data - Callable function data
  * @param {string} data.search_query - User-entered text for course search
  * @returns {Promise<object[]>} - List of course objects
@@ -70,7 +71,6 @@ export const searchCourses = functions
 
     const lowerQuery = searchQuery.toLowerCase();
 
-    // 🔍 Try to find cached courses in Firestore
     const snap = await db
       .collection("courses")
       .where("searchIndex", ">=", lowerQuery)
@@ -78,45 +78,66 @@ export const searchCourses = functions
       .limit(MAX_RESULTS)
       .get();
 
-    if (!snap.empty) {
-      functions.logger.debug("Cache hit:", snap.size);
-      return snap.docs.map((doc) => doc.data());
+    const firestoreCourses = snap.docs.map((doc) => doc.data());
+    let combinedCourses = firestoreCourses;
+
+    if (firestoreCourses.length < MAX_RESULTS) {
+      try {
+        const apiResults = await searchCoursesAPI(searchQuery);
+        const limited = apiResults.slice(
+          0,
+          MAX_RESULTS - firestoreCourses.length
+        );
+
+        const apiCourses = limited.map((course) => ({
+          id: `api-${course.id}`,
+          name: course.course_name || "",
+          club: course.club_name || "",
+          city: course.location?.city || "",
+          state: course.location?.state || "",
+          country: course.location?.country || "",
+          ...(course.location?.latitude !== undefined && {
+            lat: course.location.latitude,
+          }),
+          ...(course.location?.longitude !== undefined && {
+            lng: course.location.longitude,
+          }),
+          searchIndex: course.course_name?.toLowerCase() || "",
+          tees: course.tees || {},
+          isCustom: false,
+        }));
+
+        const batch = db.batch();
+        apiCourses.forEach((c) => {
+          batch.set(
+            db.collection("courses").doc(c.id),
+            {
+              ...c,
+              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            },
+            { merge: true }
+          );
+        });
+        await batch.commit();
+
+        const deduped = new Map();
+        for (const course of [...apiCourses, ...firestoreCourses]) {
+          const key = `${course.name}-${course.city}-${course.state}`;
+          if (!deduped.has(key)) {
+            deduped.set(key, course);
+          } else {
+            const existing = deduped.get(key);
+            if (existing.isCustom === false && course.isCustom === true) {
+              deduped.set(key, course);
+            }
+          }
+        }
+
+        combinedCourses = Array.from(deduped.values());
+      } catch (e) {
+        functions.logger.error("Error fetching from API:", e);
+      }
     }
 
-    // 🌐 Fetch from GolfCourse API if not in cache
-    const results = await searchCoursesAPI(searchQuery);
-    const limited = results.slice(0, MAX_RESULTS);
-
-    const courses = limited.map((course) => ({
-      id: String(course.id),
-      name: course.course_name || "",
-      club: course.club_name || "",
-      city: course.location?.city || "",
-      state: course.location?.state || "",
-      country: course.location?.country || "",
-      ...(course.location?.latitude !== undefined && {
-        lat: course.location.latitude,
-      }),
-      searchIndex: course.course_name?.toLowerCase() || "",
-      ...(course.location?.longitude !== undefined && {
-        lng: course.location.longitude,
-      }),
-      tees: course.tees || {},
-    }));
-
-    // 💾 Cache in Firestore
-    const batch = db.batch();
-    courses.forEach((c) => {
-      batch.set(
-        db.collection("courses").doc(c.id),
-        {
-          ...c,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        },
-        {merge: true}
-      );
-    });
-    await batch.commit();
-
-    return courses;
+    return combinedCourses;
   });

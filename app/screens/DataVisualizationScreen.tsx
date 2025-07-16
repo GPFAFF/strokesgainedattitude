@@ -1,4 +1,3 @@
-// Data Visualization screen/component placeholder// Data Visualization screen/component placeholderimport React from 'react';
 import { View, Text, StyleSheet } from "react-native";
 import ScreenWrapper from "../components/ScreenWrapper";
 

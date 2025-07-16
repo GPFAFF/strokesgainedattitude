@@ -1,9 +1,9 @@
-// Onboarding screen/component placeholderimport React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import Logo from "../components/logo";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { colors } from "../theme";
+
 type OnboardingScreenNavigationProp = StackNavigationProp<any, any>;
 
 export default function OnboardingScreen({

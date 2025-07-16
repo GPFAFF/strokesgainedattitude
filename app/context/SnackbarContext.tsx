@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
 import { Snackbar } from "react-native-paper";
 import { View, StyleSheet } from "react-native";
+import { colors } from "../theme";
 
 type SnackbarType = "success" | "error";
 
@@ -52,7 +53,6 @@ export const SnackbarProvider = ({
         }}
         style={[
           styles.snackbar,
-
           type === "error" ? styles.error : styles.success,
         ]}
       >
@@ -70,9 +70,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   success: {
-    backgroundColor: "#16A34A", // Green
+    backgroundColor: colors.darkGreen,
   },
   error: {
-    backgroundColor: "#DC2626",
+    backgroundColor: colors.red,
   },
 });

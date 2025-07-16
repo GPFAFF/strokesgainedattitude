@@ -1,34 +1,32 @@
-// screens/SelectCourseScreen.tsx
-import React, { useState, useMemo } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import React, { useState } from "react";
+import { Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import CourseSearchBar from "../components/CourseSearch";
 import { colors } from "../theme";
 
+type SelectCourseScreenRouteParams = {
+  onSelect?: (data: { course: any; tee: any }) => void;
+};
+
 export default function SelectCourseScreen() {
+  const route =
+    useRoute<RouteProp<{ params: SelectCourseScreenRouteParams }, "params">>();
   const navigation = useNavigation();
-  const route = useRoute();
   const onSelect = route.params?.onSelect;
 
   const handleSelect = (course: any, tee: any) => {
     onSelect?.({ course, tee });
-    navigation.goBack(); // 👈 closes modal
+    navigation.goBack();
   };
 
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedTee, setSelectedTee] = useState(null);
 
   const allTees =
-    selectedCourse?.tees?.female?.concat(selectedCourse?.tees?.male || []) ||
+    selectedCourse?.tees?.male?.concat(selectedCourse?.tees?.female || []) ||
     [];
 
-  const openAddCourse = (query: string) => {
+  const openAddCourse = (query?: string) => {
     navigation.navigate("AddCourse", {
       defaultName: query,
       onSelect: (course: any) => {
@@ -51,8 +49,14 @@ export default function SelectCourseScreen() {
       <CourseSearchBar
         onSelect={(course) => {
           setSelectedCourse(course);
+          // setSelectedTee(null);
         }}
-        onAddCourse={openAddCourse}
+        onResultsEmpty={(isEmpty) => {
+          if (isEmpty) {
+            setSelectedCourse(null);
+            setSelectedTee(null);
+          }
+        }}
       />
 
       {selectedCourse && (
@@ -91,6 +95,9 @@ export default function SelectCourseScreen() {
       >
         <Text style={styles.saveText}>Done</Text>
       </TouchableOpacity>
+      <TouchableOpacity onPress={() => openAddCourse()}>
+        <Text style={styles.addCourseText}>Can't find it? Add your course</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
@@ -120,4 +127,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   saveText: { color: "white", fontWeight: "600" },
+  addCourseText: {
+    color: colors.forestGreen,
+    textAlign: "center",
+    marginTop: 20,
+    fontWeight: "500",
+  },
 });

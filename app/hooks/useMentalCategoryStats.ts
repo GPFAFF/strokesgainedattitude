@@ -1,5 +1,3 @@
-// hooks/useMentalCategoryStats.ts
-
 import { useQuery } from "@tanstack/react-query";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/config";
@@ -13,7 +11,7 @@ export interface Score {
 export const useMentalCategoryStats = (uid?: string) => {
   return useQuery<Score[]>({
     queryKey: ["mentalCategoryStats", uid],
-    enabled: !!uid, // only fetch if user ID exists
+    enabled: !!uid,
     queryFn: async () => {
       const snapshot = await getDocs(
         collection(db, "mentalCategoryStats", uid!, "categories")
@@ -32,6 +30,6 @@ export const useMentalCategoryStats = (uid?: string) => {
         };
       });
     },
-    staleTime: 1000 * 60 * 5, // optional: cache for 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 };

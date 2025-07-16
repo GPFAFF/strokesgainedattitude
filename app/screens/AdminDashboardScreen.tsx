@@ -38,7 +38,8 @@ export default function AdminDashboardScreen() {
   const loading = authLoading || profileLoading || scoresLoading;
   const user =
     firebaseUser && userProfile ? { ...firebaseUser, ...userProfile } : null;
-  const roundsCount = userProfile?.rounds?.length || 0;
+
+  const roundsCount = user?.rounds?.length || 0;
 
   if (loading) {
     return (
@@ -53,11 +54,12 @@ export default function AdminDashboardScreen() {
 
   return (
     <ScreenWrapper>
-      <HeaderBar title={`Welcome, ${user?.displayName || "Admin"}`} />
+      <HeaderBar title={`Trends`} />
       <View style={styles.container}>
-        <Text style={styles.title}>Your Mental Performance Trends</Text>
         <Text style={styles.paragraph}>
-          You have logged {roundsCount} rounds of mental performance.
+          You have logged{" "}
+          <Text style={{ fontWeight: "bold" }}>{roundsCount}</Text> rounds of
+          mental performance.
         </Text>
         <Text style={styles.paragraph}>
           Here are your average scores by category:
@@ -125,6 +127,6 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: colors.forestGreen,
+    color: colors.darkGreen,
   },
 });

@@ -1,9 +1,12 @@
 export const colors = {
+  darkGreen: "#1B4332",
+  green: "#F1F5F2",
   fairwayGreen: "#2E7D32",
   bunkerSand: "#E0C097",
   pineShadow: "#1B5E20",
   skyBlue: "#90CAF9",
   white: "#FFFFFF",
+  red: "#DC2626",
   digitalGreen: "#43A047",
   deepNavy: "#0D1B2A",
   coolGray: "#B0BEC5",

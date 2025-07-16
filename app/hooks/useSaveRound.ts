@@ -1,5 +1,3 @@
-// hooks/useSaveMentalRound.ts
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { User } from "firebase/auth";
 import {
@@ -22,19 +20,30 @@ interface CourseInfo {
   courseName?: string;
   courseCity?: string;
   courseState?: string;
+  tees: {
+    course_rating: string;
+    slope_rating: string;
+    tee_name: string;
+  }[];
 }
 
 type SaveRoundPayload = {
   user: User;
   scores: MentalRoundScores;
   courseInfo?: CourseInfo;
+  roundScore?: number;
 };
 
 export const useSaveMentalRound = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ user, scores, courseInfo }: SaveRoundPayload) => {
+    mutationFn: async ({
+      user,
+      scores,
+      courseInfo,
+      roundScore,
+    }: SaveRoundPayload) => {
       const categoryMap: { [key: string]: number[] } = {};
 
       for (const entry of concepts) {
@@ -59,7 +68,12 @@ export const useSaveMentalRound = () => {
         createdAt: serverTimestamp(),
         scores,
         categoryScores,
-        ...courseInfo,
+        ...(courseInfo?.courseId && { courseId: courseInfo.courseId }),
+        ...(courseInfo?.courseName && { courseName: courseInfo.courseName }),
+        ...(courseInfo?.courseCity && { courseCity: courseInfo.courseCity }),
+        ...(courseInfo?.courseState && { courseState: courseInfo.courseState }),
+        tees: courseInfo?.tees || [],
+        roundScore: roundScore || 0,
       };
 
       const docRef = await addDoc(
@@ -76,14 +90,16 @@ export const useSaveMentalRound = () => {
     },
 
     onSuccess: (_data, variables) => {
-      // invalidate relevant queries
       queryClient.invalidateQueries({
-        queryKey: ["mentalRounds", variables.user.uid],
+        queryKey: ["user", variables.user.uid],
       });
       queryClient.invalidateQueries({
         queryKey: ["mentalCategoryStats", variables.user.uid],
       });
-      queryClient.invalidateQueries({ queryKey: ["user", variables.user.uid] });
+
+      queryClient.invalidateQueries({
+        queryKey: ["mentalRounds", variables.user.uid],
+      });
     },
   });
 };

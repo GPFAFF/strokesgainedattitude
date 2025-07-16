@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
+  TextInput,
   StyleSheet,
   ScrollView,
   ActivityIndicator,
@@ -22,8 +23,7 @@ import PaginationDots from "../components/PaginationDots";
 import HeaderBar from "../components/HeaderBar";
 
 import mentalConcepts from "../data/mentalConcepts.json";
-import { colors } from "../theme";
-import BumpCounter from "../components/BumpCounter";
+import { colors, spacing } from "../theme";
 import { useSaveMentalRound } from "../hooks/useSaveRound";
 
 const { width: screenWidth } = Dimensions.get("window");
@@ -48,7 +48,7 @@ export default function MentalTrackerScreen() {
     { card: number; concept: string; category: string; trackable: boolean }[]
   >([]);
   const [scores, setScores] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [roundScore, setRoundScore] = useState<number | null>(null);
 
   const { activeIndex, handleScroll } = usePaginationDots(
     CARD_WIDTH,
@@ -62,7 +62,7 @@ export default function MentalTrackerScreen() {
 
     const defaultScores = {};
     filtered.forEach((c) => {
-      defaultScores[c.concept] = 3; // neutral default
+      defaultScores[c.concept] = 3;
     });
     setScores(defaultScores);
   }, []);
@@ -104,6 +104,7 @@ export default function MentalTrackerScreen() {
           courseState: selectedCourse.state,
           tees: selectedTee,
         },
+        roundScore: roundScore ?? null,
       });
 
       showSnackbar("Round saved successfully!", "success");
@@ -120,7 +121,7 @@ export default function MentalTrackerScreen() {
     }
   };
 
-  if (!user || authLoading || loading) {
+  if (!user || authLoading) {
     return (
       <ScreenWrapper>
         <ActivityIndicator style={{ marginTop: 40 }} />
@@ -131,25 +132,33 @@ export default function MentalTrackerScreen() {
 
   return (
     <ScreenWrapper>
-      <HeaderBar title="Mental Tracker" />
+      <HeaderBar title="Scoring" />
       <View style={styles.container}>
         <TouchableOpacity onPress={openCourseModal}>
-          <Text
-            style={[
-              styles.courseSelector,
-              !selectedCourse && {
-                backgroundColor: colors.lightGray,
-                width: 125,
-                padding: 10,
-                borderRadius: 8,
-              },
-            ]}
-          >
-            {selectedCourse
-              ? `${selectedCourse.name} · ${selectedTee?.tee_name}`
-              : "Select Course"}
+          <Text style={[styles.saveButton, { marginBottom: 10 }]}>
+            <Text style={styles.saveText}>
+              {selectedCourse
+                ? `${selectedCourse.name} · ${selectedTee?.tee_name}`
+                : "Select Course"}
+            </Text>
           </Text>
         </TouchableOpacity>
+
+        {selectedCourse && selectedTee && (
+          <View style={{ width: 150 }}>
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              placeholder="Enter total score"
+              value={roundScore ? String(roundScore) : ""}
+              onChangeText={(text) => {
+                const num = parseInt(text, 10);
+                if (!isNaN(num)) setRoundScore(num);
+                else setRoundScore(null);
+              }}
+            />
+          </View>
+        )}
 
         <ScrollView
           horizontal
@@ -163,43 +172,66 @@ export default function MentalTrackerScreen() {
         >
           {Object.entries(groupedByCategory).map(([category, concepts]) => (
             <View key={category} style={{ width: screenWidth }}>
-              <View style={styles.card}>
-                <Text style={styles.cardTitle}>{category}</Text>
-                {/* <ScrollView contentContainerStyle={styles.cardScroll}> */}
-                {concepts.map(({ concept }) => (
-                  <View key={concept} style={styles.sliderContainer}>
-                    <Text style={styles.conceptLabel}>{concept}</Text>
+              <View style={{ position: "relative" }}>
+                <View style={styles.card}>
+                  <Text style={styles.cardTitle}>{category}</Text>
 
-                    <View style={styles.counterRow}>
-                      <TouchableOpacity
-                        onPress={() =>
-                          setScores((prev) => ({
-                            ...prev,
-                            [concept]: Math.max(1, prev[concept] - 1),
-                          }))
-                        }
-                        style={styles.counterButton}
-                      >
-                        <Text style={styles.counterText}>−</Text>
-                      </TouchableOpacity>
+                  {concepts.map(({ concept }) => (
+                    <View key={concept} style={styles.sliderContainer}>
+                      <Text style={styles.conceptLabel}>{concept}</Text>
 
-                      <Text style={styles.counterValue}>{scores[concept]}</Text>
+                      <View style={styles.counterRow}>
+                        <TouchableOpacity
+                          onPress={() =>
+                            setScores((prev) => ({
+                              ...prev,
+                              [concept]: Math.max(1, prev[concept] - 1),
+                            }))
+                          }
+                          style={[
+                            styles.counterButton,
+                            (!selectedCourse || !selectedTee) && {
+                              opacity: 0.4,
+                            },
+                          ]}
+                          disabled={!selectedCourse || !selectedTee}
+                        >
+                          <Text style={styles.counterText}>−</Text>
+                        </TouchableOpacity>
 
-                      <TouchableOpacity
-                        onPress={() =>
-                          setScores((prev) => ({
-                            ...prev,
-                            [concept]: Math.min(5, prev[concept] + 1),
-                          }))
-                        }
-                        style={styles.counterButton}
-                      >
-                        <Text style={styles.counterText}>＋</Text>
-                      </TouchableOpacity>
+                        <Text style={styles.counterValue}>
+                          {scores[concept]}
+                        </Text>
+
+                        <TouchableOpacity
+                          onPress={() =>
+                            setScores((prev) => ({
+                              ...prev,
+                              [concept]: Math.min(5, prev[concept] + 1),
+                            }))
+                          }
+                          style={[
+                            styles.counterButton,
+                            (!selectedCourse || !selectedTee) && {
+                              opacity: 0.4,
+                            },
+                          ]}
+                          disabled={!selectedCourse || !selectedTee}
+                        >
+                          <Text style={styles.counterText}>＋</Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
+                  ))}
+                </View>
+
+                {!selectedCourse || !selectedTee ? (
+                  <View style={styles.cardOverlay}>
+                    <Text style={styles.overlayText}>
+                      Select a course to enable scoring
+                    </Text>
                   </View>
-                ))}
-                {/* </ScrollView> */}
+                ) : null}
               </View>
             </View>
           ))}
@@ -226,7 +258,7 @@ export default function MentalTrackerScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, marginTop: -24 },
   courseSelector: {
     fontWeight: "600",
     fontSize: 16,
@@ -234,14 +266,17 @@ const styles = StyleSheet.create({
     color: "#1B4332",
   },
   card: {
-    width: CARD_WIDTH, // full screen minus padding
+    width: CARD_WIDTH,
     paddingHorizontal: 16,
     alignSelf: "center",
     backgroundColor: "#F1F5F2",
     borderRadius: 8,
     padding: 20,
     height: Dimensions.get("window").height * 0.49,
-
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
     marginRight: 32,
   },
   cardTitle: {
@@ -250,6 +285,29 @@ const styles = StyleSheet.create({
     color: "#2D6A4F",
     marginBottom: 8,
     textAlign: "center",
+  },
+  cardOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    width: CARD_WIDTH,
+
+    backgroundColor: "rgba(61, 58, 58, 0.9)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 8,
+    paddingHorizontal: 20,
+  },
+  input: {
+    padding: 12,
+    marginBottom: 16,
+    borderRadius: 8,
+    color: "#1B4332",
+    backgroundColor: colors.whiteSmoke,
+  },
+  overlayText: {
+    textAlign: "center",
+    color: colors.white,
+    fontWeight: "600",
+    fontSize: 32,
   },
   cardScroll: {
     paddingBottom: 10,
@@ -292,14 +350,14 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     backgroundColor: colors.sunsetCoral,
-    padding: 14,
-    borderRadius: 8,
+    padding: spacing.md,
+    borderRadius: spacing.sm,
     alignItems: "center",
-    marginTop: 20,
+    marginTop: spacing.lg,
   },
   saveText: {
-    color: "#fff",
-    fontSize: 16,
+    color: colors.white,
+    fontSize: spacing.md,
     fontWeight: "600",
   },
 });

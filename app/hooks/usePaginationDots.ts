@@ -12,7 +12,7 @@ export function usePaginationDots(
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       const offsetX = event.nativeEvent.contentOffset.x;
-      const index = Math.floor(offsetX / snapSize + 0.5); // biased rounding
+      const index = Math.floor(offsetX / snapSize + 0.5);
       setActiveIndex(Math.max(0, Math.min(index, itemCount - 1)));
     },
     [snapSize, itemCount]

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -6,15 +6,15 @@ import {
   ScrollView,
   ActivityIndicator,
   Dimensions,
-  Image,
 } from "react-native";
-import { fetchMentalRounds } from "../services/fetchMentalRound";
+
 import { useAuth } from "../hooks/auth";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { usePaginationDots } from "../hooks/usePaginationDots";
 import PaginationDots from "../components/PaginationDots";
 import HeaderBar from "../components/HeaderBar";
 import { colors } from "../theme";
+import { useMentalRounds } from "../hooks/useMentalRounds";
 
 const { width: screenWidth } = Dimensions.get("window");
 const CARD_WIDTH = screenWidth * 0.9;
@@ -22,34 +22,12 @@ const SPACING = 16;
 
 export default function RoundHistoryScreen() {
   const { firebaseUser: user } = useAuth();
-  const [rounds, setRounds] = useState<
-    {
-      id: string;
-      createdAt?: { toDate: () => Date };
-      scores?: Record<string, number>;
-      courseName?: string;
-    }[]
-  >([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (!user?.uid) return;
-
-    setIsLoading(true);
-
-    const loadRounds = async () => {
-      const data = await fetchMentalRounds(user);
-      setRounds(data);
-      setIsLoading(false);
-    };
-
-    loadRounds();
-  }, [user]);
+  const { data = [], isLoading: roundsLoading } = useMentalRounds(user);
 
   const { activeIndex, handleScroll } = usePaginationDots(
     CARD_WIDTH,
     SPACING,
-    rounds.length
+    data.length
   );
 
   if (!user) {
@@ -60,7 +38,7 @@ export default function RoundHistoryScreen() {
     );
   }
 
-  if (isLoading) {
+  if (roundsLoading) {
     return (
       <ScreenWrapper>
         <View style={styles.loaderWrapper}>
@@ -71,7 +49,7 @@ export default function RoundHistoryScreen() {
     );
   }
 
-  if (rounds.length === 0) {
+  if (data.length === 0) {
     return (
       <ScreenWrapper>
         <View style={styles.container}>
@@ -84,11 +62,10 @@ export default function RoundHistoryScreen() {
     );
   }
 
-  // Group scores by category (assuming you want this view)
   const groupByCategory = (scores: Record<string, number>) => {
     const grouped: Record<string, { concept: string; score: number }[]> = {};
     for (const [concept, score] of Object.entries(scores)) {
-      const match = concept.match(/\(([^)]+)\)/); // extract category from "Focus Control (Awareness)"
+      const match = concept.match(/\(([^)]+)\)/);
       const category = match?.[1] || "Uncategorized";
       const cleanedConcept = concept.replace(/\s*\(.*?\)/, "").trim();
       if (!grouped[category]) grouped[category] = [];
@@ -99,7 +76,7 @@ export default function RoundHistoryScreen() {
 
   return (
     <ScreenWrapper>
-      <HeaderBar title="Round History" />
+      <HeaderBar title="History" />
       <View style={styles.container}>
         <ScrollView
           horizontal
@@ -111,7 +88,7 @@ export default function RoundHistoryScreen() {
           scrollEventThrottle={16}
           onScroll={handleScroll}
         >
-          {rounds.map((round, i) => {
+          {data.map((round, i) => {
             const groupedScores = groupByCategory(round.scores || {});
             const roundDate =
               round.createdAt?.toDate()?.toLocaleDateString() || "Unknown";
@@ -128,7 +105,7 @@ export default function RoundHistoryScreen() {
                     {round.courseName}
                     <Text style={styles.subtitle}>
                       {" "}
-                      ({round.tees.tee_name} {round.tees.par_total} Par)
+                      ({round?.tees?.tee_name} {round?.tees?.par_total} Par)
                     </Text>
                   </Text>
 
@@ -148,7 +125,7 @@ export default function RoundHistoryScreen() {
           })}
         </ScrollView>
       </View>
-      <PaginationDots count={rounds.length} activeIndex={activeIndex} />
+      <PaginationDots count={data.length} activeIndex={activeIndex} />
     </ScreenWrapper>
   );
 }

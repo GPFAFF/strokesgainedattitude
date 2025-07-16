@@ -1,4 +1,3 @@
-// hooks/useCourseSearch.ts
 import { useQuery } from "@tanstack/react-query";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
@@ -13,6 +12,6 @@ export const useCourseSearch = (search_query: string) => {
         return r.data;
       }),
     enabled: !!search_query,
-    staleTime: 1000 * 60 * 60, // 1 hour
+    staleTime: 1000 * 60 * 60,
   });
 };

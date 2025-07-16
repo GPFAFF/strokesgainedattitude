@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   SafeAreaView,
@@ -14,25 +14,52 @@ import { useCourseSearch } from "../hooks/useCourseSearch";
 import { useDebounce } from "../hooks/debounce";
 import { colors } from "../theme";
 
-export default function CourseSearchBar({ onSelect, onAddCourse }) {
+type CourseSearchBarProps = {
+  onSelect: (course: {
+    id: string;
+    name: string;
+    city: string;
+    state: string;
+  }) => void;
+  onResultsEmpty?: (isEmpty: boolean) => void;
+};
+
+export default function CourseSearchBar({
+  onSelect,
+  onResultsEmpty,
+}: CourseSearchBarProps) {
   const [query, setQuery] = useState("");
-  const debouncedQuery = useDebounce(query, 400); // 400ms delay
+  const debouncedQuery = useDebounce(query, 400);
 
   const { data = [], isFetching } = useCourseSearch(debouncedQuery);
 
   console.log("🔥 CourseSearchBar raw data:", data);
   console.log("🔍 Current query:", debouncedQuery, "| isFetching:", isFetching);
 
-  const results = useMemo(() => {
-    // 1. Map raw API data to expected shape
-    const normalized = data.map((item) => ({
-      ...item,
-      name: item.course_name || item.name || "",
-      city: item?.city || "",
-      state: item?.state || "",
-    }));
+  useEffect(() => {
+    if (data.length === 0 && query.trim().length > 2) {
+      onResultsEmpty?.(true);
+    } else {
+      onResultsEmpty?.(false);
+    }
+  }, [data]);
 
-    // 2. Fuse search
+  const results = useMemo(() => {
+    const normalized = data.map(
+      (item: {
+        id: string;
+        course_name?: string;
+        name?: string;
+        city?: string;
+        state?: string;
+      }) => ({
+        ...item,
+        name: item.course_name || item.name || "",
+        city: item?.city || "",
+        state: item?.state || "",
+      })
+    );
+
     const fuse = new Fuse(normalized, {
       keys: ["name", "city", "state"],
       threshold: 0.3,
@@ -52,14 +79,12 @@ export default function CourseSearchBar({ onSelect, onAddCourse }) {
 
       {isFetching && <ActivityIndicator style={styles.loader} />}
 
-      <TouchableOpacity onPress={() => onAddCourse(query)}>
-        <Text style={styles.addCourseText}>Can't find it? Add your course</Text>
-      </TouchableOpacity>
-
       <FlashList
         data={results}
         estimatedItemSize={56}
-        keyExtractor={(item) => item.id?.toString() ?? Math.random().toString()}
+        keyExtractor={(item: { id: string; isCustom?: boolean }) =>
+          item.isCustom ? `custom-${item.id}` : `api-${item.id}`
+        }
         renderItem={({ item }) => {
           console.log("🔍 Rendering item:", item);
           return (
@@ -67,7 +92,7 @@ export default function CourseSearchBar({ onSelect, onAddCourse }) {
               style={styles.item}
               onPress={() => onSelect(item)}
             >
-              <Text style={styles.name}>{item.club}</Text>
+              <Text style={styles.name}>{item.club || item.name}</Text>
               <Text style={styles.subtext}>
                 {item.city}, {item.state}
               </Text>

@@ -27,8 +27,8 @@ const SnackbarComponent = () => {
         ]}
         theme={{
           colors: {
-            onSurface: type === "error" ? "#fff" : "#1B4332", // text color
-            surface: "transparent", // let `style` handle bg
+            onSurface: type === "error" ? "#fff" : "#1B4332",
+            surface: "transparent",
           },
         }}
       >
@@ -51,10 +51,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   success: {
-    backgroundColor: "#F1F5F2", // soft light surface
+    backgroundColor: "#F1F5F2",
   },
   error: {
-    backgroundColor: "#DC2626", // Material red for error
+    backgroundColor: "#DC2626",
   },
 });
 

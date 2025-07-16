@@ -1,4 +1,3 @@
-// Login screen/component placeholderimport React from 'react';
 import {
   View,
   Text,
@@ -8,13 +7,13 @@ import {
 } from "react-native";
 import Logo from "../components/logo";
 
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { login } from "../services/authService";
 import useAuthForm from "../hooks/useAuthForm";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { useSnackbar } from "../context/SnackbarContext";
 import { colors } from "../theme";
 import { NavigationProp } from "@react-navigation/native";
+import HeaderBar from "../components/HeaderBar";
 
 const LoginScreen = ({ navigation }: { navigation: NavigationProp<any> }) => {
   const { email, password, setEmail, setPassword } = useAuthForm();
@@ -32,6 +31,7 @@ const LoginScreen = ({ navigation }: { navigation: NavigationProp<any> }) => {
 
   return (
     <ScreenWrapper>
+      <HeaderBar showIcon={false} />
       <View style={styles.container}>
         <Logo />
         <Text style={styles.title}>Login</Text>
@@ -69,8 +69,6 @@ const styles = StyleSheet.create({
     color: "#1B4332",
   },
   input: {
-    borderWidth: 1,
-    borderColor: "#1B4332",
     backgroundColor: colors.whiteSmoke,
     padding: 12,
     marginBottom: 16,

@@ -5,7 +5,6 @@ export default function useUserProfileForm(user?: any) {
   const [email, setEmail] = useState("");
   const [handicap, setHandicap] = useState("");
 
-  // only initialize once when the user is first loaded
   useEffect(() => {
     if (user) {
       setDisplayName((prev) => prev || user.displayName || "");

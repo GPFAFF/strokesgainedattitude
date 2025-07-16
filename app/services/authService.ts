@@ -1,4 +1,3 @@
-// authService screen/component placeholder// firebase/auth.js
 import { auth } from "../firebase/config";
 import {
   createUserWithEmailAndPassword,

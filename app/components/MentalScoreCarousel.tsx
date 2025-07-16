@@ -1,4 +1,5 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
+
 import {
   View,
   Text,
@@ -10,16 +11,14 @@ import {
   Platform,
   FlatList,
   ViewToken,
+  Animated,
 } from "react-native";
 import PaginationDots from "./PaginationDots";
-import { usePaginationDots } from "../hooks/usePaginationDots";
-import useAuth from "../hooks/auth";
+
+import { Ionicons } from "@expo/vector-icons";
+
 import { colors } from "../theme";
 import { LineChart } from "react-native-gifted-charts";
-
-const { width: screenWidth } = Dimensions.get("window");
-const CARD_WIDTH = screenWidth;
-const SPACING = 16;
 
 if (
   Platform.OS === "android" &&
@@ -38,10 +37,46 @@ type Props = {
   scores: CategoryScore[];
 };
 
+const EmptyOverlay = ({
+  message,
+  icon = "information-circle-outline",
+  style,
+}: {
+  message: string;
+  icon?: keyof typeof Ionicons.glyphMap;
+  style?: any;
+}) => {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  return (
+    <Animated.View
+      style={[styles.emptyOverlayBase, style, { opacity: fadeAnim }]}
+    >
+      <Ionicons
+        name={icon}
+        size={48}
+        color={colors.white}
+        style={{ marginBottom: 12 }}
+      />
+      <Text style={styles.emptyText}>{message}</Text>
+    </Animated.View>
+  );
+};
+
 const MentalScoreScrollPager = ({ scores }: Props) => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
+
+  console.log("🔥 MentalScoreScrollPager scores:", scores);
 
   if (
     Platform.OS === "android" &&
@@ -53,6 +88,13 @@ const MentalScoreScrollPager = ({ scores }: Props) => {
   const { width: screenWidth } = Dimensions.get("window");
   const CARD_PADDING = 16;
   const CARD_WIDTH = screenWidth - CARD_PADDING * 2;
+
+  const dataLength = scores.length;
+  const chartWidth = CARD_WIDTH + CARD_PADDING;
+  const spacing = 23;
+
+  const calculatedInitialSpacing =
+    (chartWidth - spacing * (dataLength - 1)) / 2;
 
   const toggleDetails = (category: string) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -70,119 +112,127 @@ const MentalScoreScrollPager = ({ scores }: Props) => {
     }
   ).current;
 
-  const values = scores.map((s) => s.averageScore);
-  const yPadding = 0.5;
-
-  const windowSize = 2;
-  const start = Math.max(0, activeIndex - windowSize);
-  const end = Math.min(scores.length, activeIndex + windowSize + 1);
-  const localValues = values.slice(start, end);
-
-  const localMin = Math.min(...localValues);
-  const localMax = Math.max(...localValues);
-
-  // optionally enforce a minimum range
-  const minRange = 1;
-  const rawMin = Math.max(0, localMin - yPadding);
-  const rawMax = Math.min(5, localMax + yPadding);
-  const minValue = Math.min(rawMin, rawMax - minRange);
-  const maxValue = Math.max(rawMax, minValue + minRange);
-
   return (
     <View style={styles.wrapper}>
-      <View style={styles.chartContainer}>
-        <Text style={styles.chartLabel}>Category Trends</Text>
-        <View style={{ width: CARD_WIDTH, alignSelf: "center" }}>
+      <View
+        style={[
+          styles.chartContainer,
+          {
+            display: "flex",
+          },
+        ]}
+      >
+        {scores.length === 0 && (
+          <EmptyOverlay
+            message="Add scores to see chart insights"
+            style={styles.chartOverlay}
+          />
+        )}
+        <View style={{ width: chartWidth, alignSelf: "center" }}>
           <LineChart
-            adjustToWidth={true}
+            adjustToWidth
             data={scores.map((item, index) => ({
               value: item.averageScore,
               label:
                 item.category.length > 12
                   ? item.category.slice(0, 10) + "…"
                   : item.category,
+              focused: index === activeIndex,
               customDataPoint:
                 index === activeIndex
                   ? () => (
                       <View
                         style={{
-                          width: 14,
-                          height: 14,
-                          borderRadius: 7,
-                          backgroundColor: "#40916c",
+                          width: 12,
+                          height: 12,
+                          backgroundColor: "#1B4332",
+                          borderRadius: 6,
                           borderWidth: 2,
-                          borderColor: "#fff",
+                          borderColor: "#74C69D",
                         }}
                       />
                     )
                   : undefined,
             }))}
-            curved
             areaChart
             hideDataPoints={false}
-            color="#52b788"
-            thickness={2}
+            dataPointsColor="#74C69D"
+            dataPointsRadius={4}
+            focusedDataPointColor="#1B4332"
+            focusedDataPointRadius={6}
+            startFillColor="#74C69D"
+            endFillColor="#D8F3DC"
             isAnimated
             noOfSections={5}
-            spacing={22}
-            initialSpacing={0}
+            startOpacity={0.9}
+            endOpacity={0}
+            maxValue={5}
+            xAxisLabelTextStyle={{ width: 0, display: "none" }}
+            yAxisTextStyle={{ width: 0, display: "none" }}
+            initialSpacing={5}
+            spacing={25}
+            thickness={2}
+            hideRules
+            hideYAxisText
+            xAxisThickness={0}
             xAxisColor="transparent"
+            yAxisThickness={0}
             yAxisColor="transparent"
-            xAxisLabelTextStyle={{
-              color: "#ccc",
-              fontSize: 10,
-              rotation: 30,
-              width: 50,
-              textAlign: "center",
-            }}
-            yAxisTextStyle={{
-              color: "#ccc",
-              fontSize: 10,
-            }}
-            height={100}
-            maxValue={maxValue}
-            // minValue property removed as it is not supported
           />
         </View>
       </View>
-      <FlatList
-        horizontal
-        pagingEnabled
-        snapToInterval={screenWidth}
-        decelerationRate="fast"
-        showsHorizontalScrollIndicator={false}
-        snapToAlignment="start"
-        keyExtractor={(item) => item.category}
-        data={scores}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
-        renderItem={({ item }) => (
-          <View style={{ width: screenWidth }}>
-            <View style={[styles.card, { marginHorizontal: CARD_PADDING }]}>
-              <TouchableOpacity onPress={() => toggleDetails(item.category)}>
-                <Text style={styles.category}>{item.category}</Text>
-                <Text style={styles.score}>{item.averageScore.toFixed(1)}</Text>
-                <Text style={styles.tapText}>
-                  {expandedCategory === item.category
-                    ? "Tap to Collapse"
-                    : "Tap for Details"}
-                </Text>
-              </TouchableOpacity>
+      <View
+        style={{
+          flex: 1,
+        }}
+      >
+        <FlatList
+          horizontal
+          pagingEnabled
+          snapToInterval={screenWidth}
+          decelerationRate="fast"
+          showsHorizontalScrollIndicator={false}
+          snapToAlignment="start"
+          keyExtractor={(item) => item.category}
+          data={scores}
+          onViewableItemsChanged={onViewableItemsChanged}
+          ListEmptyComponent={
+            <EmptyOverlay
+              message="Add rounds to unlock these insights"
+              style={styles.cardOverlay}
+            />
+          }
+          viewabilityConfig={viewabilityConfig}
+          renderItem={({ item }) => (
+            <View style={{ width: screenWidth }}>
+              <View style={[styles.card, { marginHorizontal: CARD_PADDING }]}>
+                <TouchableOpacity onPress={() => toggleDetails(item.category)}>
+                  <Text style={styles.category}>{item.category}</Text>
+                  <Text style={styles.score}>
+                    {item.averageScore.toFixed(1)}
+                  </Text>
+                  <Text style={styles.tapText}>
+                    {expandedCategory === item.category
+                      ? "Tap to Collapse"
+                      : "Tap for Details"}
+                  </Text>
+                </TouchableOpacity>
 
-              {expandedCategory === item.category && (
-                <View style={styles.detailsContainer}>
-                  {item.concepts.map((c) => (
-                    <View key={c.concept} style={styles.detailItem}>
-                      <Text style={styles.conceptText}>{c.score}</Text>
-                      <Text style={styles.detailScore}>{c.concept} / 3</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
+                {expandedCategory === item.category && (
+                  <View style={styles.detailsContainer}>
+                    {item.concepts.map((c) => (
+                      <View key={c.concept} style={styles.detailItem}>
+                        <Text style={styles.conceptText}>{c.score}</Text>
+                        <Text style={styles.detailScore}>{c.concept} / 3</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
             </View>
-          </View>
-        )}
-      />
+          )}
+        />
+      </View>
 
       {scores.length > 1 && (
         <PaginationDots
@@ -197,10 +247,13 @@ const MentalScoreScrollPager = ({ scores }: Props) => {
 
 const styles = StyleSheet.create({
   wrapper: {
-    marginTop: 10,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 16,
   },
   card: {
-    backgroundColor: colors.duskGray,
+    backgroundColor: colors.green,
     borderRadius: 8,
     padding: 20,
     alignItems: "flex-start",
@@ -211,12 +264,13 @@ const styles = StyleSheet.create({
     elevation: 4,
     marginLeft: 0,
     marginRight: 32,
+    borderWidth: 1,
+    borderColor: colors.darkGreen,
   },
   chartContainer: {
-    marginBottom: 16,
+    marginBottom: -32,
     marginTop: 8,
-    overflow: "hidden",
-    opacity: 0.7, // ← add this
+    height: 200,
   },
   chartLabel: {
     fontSize: 18,
@@ -225,18 +279,17 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   category: {
-    color: "#fff",
+    color: colors.darkGreen,
     fontSize: 20,
     fontWeight: "600",
   },
   score: {
-    color: "#fff",
+    color: colors.darkGreen,
     fontSize: 32,
     fontWeight: "bold",
-    marginVertical: 4,
   },
   tapText: {
-    color: "#cfcfcf",
+    color: colors.darkGreen,
     fontSize: 14,
   },
   detailsContainer: {
@@ -260,6 +313,38 @@ const styles = StyleSheet.create({
   detailScore: {
     color: "#ffffff",
     fontWeight: "bold",
+  },
+  emptyOverlayBase: {
+    justifyContent: "center",
+    alignItems: "center",
+    height: 180,
+    backgroundColor: "rgba(80, 76, 76, 0.85)",
+    borderRadius: 8,
+    zIndex: 5,
+    width: 360,
+  },
+  chartOverlay: {
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  cardOverlay: {
+    justifyContent: "center",
+    alignItems: "center",
+    height: 180,
+    backgroundColor: "rgba(80, 76, 76, 0.85)",
+    borderRadius: 8,
+    padding: 20,
+    zIndex: 5,
+    marginTop: 12,
+    width: 340,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: colors.white,
+    fontWeight: "600",
+    textAlign: "center",
   },
 });
 

@@ -1,13 +1,16 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, StyleSheet } from "react-native";
+import { View, TextInput, Button, StyleSheet, Alert } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase/config";
+import { useSaveCustomCourse } from "../hooks/useSaveCustomCourse";
+import { colors, spacing } from "../theme";
 
 export default function AddCourseScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { defaultName, onSelect } = route.params || {};
+  const { mutateAsync: saveCourse, isLoading } = useSaveCustomCourse();
 
   const [name, setName] = useState(defaultName || "");
   const [city, setCity] = useState("");
@@ -17,27 +20,28 @@ export default function AddCourseScreen() {
   const [slope, setSlope] = useState("");
 
   const handleSave = async () => {
-    const newCourse = {
+    if (!name || !tees || !rating || !slope || !city || !state) {
+      Alert.alert("Missing Info", "Please fill out all fields.");
+      return;
+    }
+
+    const course = await saveCourse({
       name,
       city,
       state,
-      tees: {
-        male: [
-          {
-            course_rating: rating,
-            slope_rating: slope,
-            tee_name: tees,
-          },
-        ],
-      },
-      createdAt: serverTimestamp(),
-      isCustom: true,
-    };
-    const docRef = await addDoc(collection(db, "courses"), newCourse);
-    onSelect?.({ ...newCourse, id: docRef.id, tees: {} });
+      tees: [
+        {
+          course_rating: rating,
+          slope_rating: slope,
+          tee_name: tees,
+        },
+      ],
+      searchIndex: name.toLowerCase(),
+    });
+
+    onSelect?.(course);
     navigation.goBack();
   };
-
   return (
     <View style={styles.container}>
       <TextInput
@@ -76,7 +80,11 @@ export default function AddCourseScreen() {
         onChangeText={setState}
         style={styles.input}
       />
-      <Button title="Save Course" onPress={handleSave} />
+      <Button
+        style={styles.saveButton}
+        title="Save Course"
+        onPress={handleSave}
+      />
     </View>
   );
 }
@@ -89,5 +97,17 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     padding: 10,
     borderRadius: 6,
+  },
+  saveButton: {
+    backgroundColor: colors.sunsetCoral,
+    padding: spacing.md,
+    borderRadius: spacing.sm,
+    alignItems: "center",
+    marginTop: spacing.lg,
+  },
+  saveText: {
+    color: colors.white,
+    fontSize: spacing.md,
+    fontWeight: "600",
   },
 });

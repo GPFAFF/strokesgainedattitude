@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.warmTaupe,
-    marginTop: -24, // Adjust if needed for status bar
+    marginTop: -24,
   },
   keyboardAvoid: {
     flex: 1,

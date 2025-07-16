@@ -1,9 +1,8 @@
-// hooks/useUpdateUserProfile.ts
 import { useState } from "react";
 import { getAuth, updateProfile } from "firebase/auth";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
-import { db } from "../firebase/config"; // update path if needed
-import { useSnackbar } from "../context/SnackbarContext"; // or however you show toasts
+import { db } from "../firebase/config";
+import { useSnackbar } from "../context/SnackbarContext";
 
 export function useUpdateUserProfile() {
   const [updating, setUpdating] = useState(false);
