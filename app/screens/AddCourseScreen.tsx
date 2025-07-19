@@ -1,16 +1,24 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, StyleSheet, Alert } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { db } from "../firebase/config";
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  Alert,
+  Text,
+  TouchableOpacity,
+} from "react-native";
+import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
+
 import { useSaveCustomCourse } from "../hooks/useSaveCustomCourse";
 import { colors, spacing } from "../theme";
+import { AddCourseScreenRouteParams } from "../lib/types";
 
 export default function AddCourseScreen() {
+  const route =
+    useRoute<RouteProp<{ params: AddCourseScreenRouteParams }, "params">>();
   const navigation = useNavigation();
-  const route = useRoute();
   const { defaultName, onSelect } = route.params || {};
-  const { mutateAsync: saveCourse, isLoading } = useSaveCustomCourse();
+  const { mutateAsync: saveCourse } = useSaveCustomCourse();
 
   const [name, setName] = useState(defaultName || "");
   const [city, setCity] = useState("");
@@ -80,11 +88,9 @@ export default function AddCourseScreen() {
         onChangeText={setState}
         style={styles.input}
       />
-      <Button
-        style={styles.saveButton}
-        title="Save Course"
-        onPress={handleSave}
-      />
+      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+        <Text style={styles.saveText}>Add Round</Text>
+      </TouchableOpacity>
     </View>
   );
 }

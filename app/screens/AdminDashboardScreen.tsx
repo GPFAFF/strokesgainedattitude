@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { useAuth } from "../hooks/auth";
 import { useUserProfile } from "../hooks/useUserProfile";
@@ -14,14 +8,7 @@ import MentalScoreCarouselWithDetails from "../components/MentalScoreCarousel";
 import ScreenWrapper from "../components/ScreenWrapper";
 import HeaderBar from "../components/HeaderBar";
 import { colors, spacing } from "../theme";
-import { UserProfile } from "firebase/auth";
-
-type RootStackParamList = {
-  MentalTracker: undefined;
-  AdminDashboard: { screen: string };
-  DataVisualization: undefined;
-  ChartScreen: undefined;
-};
+import { RootStackParamList } from "../lib/types";
 
 export default function AdminDashboardScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -37,9 +24,6 @@ export default function AdminDashboardScreen() {
   } = useMentalCategoryStats(firebaseUser?.uid);
 
   const loading = authLoading || profileLoading || scoresLoading;
-
-  const user =
-    firebaseUser && userProfile ? { ...firebaseUser, ...userProfile } : null;
 
   const roundsCount = userProfile?.rounds?.length || 0;
 

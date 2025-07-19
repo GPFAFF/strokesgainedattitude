@@ -14,8 +14,13 @@ import { useSnackbar } from "../context/SnackbarContext";
 import { colors } from "../theme";
 import { NavigationProp } from "@react-navigation/native";
 import HeaderBar from "../components/HeaderBar";
+import { RootStackParamList } from "../lib/types";
 
-const LoginScreen = ({ navigation }: { navigation: NavigationProp<any> }) => {
+const LoginScreen = ({
+  navigation,
+}: {
+  navigation: NavigationProp<RootStackParamList>;
+}) => {
   const { email, password, setEmail, setPassword } = useAuthForm();
 
   const showSnackbar = useSnackbar();
@@ -24,8 +29,13 @@ const LoginScreen = ({ navigation }: { navigation: NavigationProp<any> }) => {
     try {
       await login(email, password);
       navigation.navigate("AdminDashboard");
-    } catch (error: any) {
-      showSnackbar("An error occurred during login", "error");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        showSnackbar(
+          `Login Error: ${error?.message || "Unknown error"}`,
+          "error"
+        );
+      }
     }
   };
 

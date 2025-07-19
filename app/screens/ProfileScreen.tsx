@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -7,13 +7,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  Image,
 } from "react-native";
-import { getAuth, updateProfile, signOut, deleteUser } from "firebase/auth";
+import { getAuth, signOut, deleteUser } from "firebase/auth";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { useSnackbar } from "../context/SnackbarContext";
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
-import { db } from "../firebase/config";
+
 import { useAuth } from "../hooks/auth";
 import HeaderBar from "../components/HeaderBar";
 import { useUserProfile } from "../hooks/useUserProfile";
@@ -28,6 +26,8 @@ const ProfileScreen = ({ navigation }: any) => {
 
   const user =
     firebaseUser && userProfile ? { ...firebaseUser, ...userProfile } : null;
+  const loading = authLoading || profileLoading;
+
   const auth = getAuth();
 
   const { displayName, setDisplayName, email, handicap, setHandicap } =
@@ -75,14 +75,14 @@ const ProfileScreen = ({ navigation }: any) => {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper loading={loading}>
       <HeaderBar title="Profile" />
 
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Account</Text>
 
         <Text style={styles.label}>Email</Text>
-        <Text style={styles.staticText}>{user?.email}</Text>
+        <Text style={styles.staticText}>{email}</Text>
 
         <Text style={styles.label}>Display Name</Text>
         <TextInput

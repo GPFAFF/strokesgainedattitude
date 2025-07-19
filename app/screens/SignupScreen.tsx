@@ -18,11 +18,12 @@ import { db } from "../firebase/config";
 import { doc, setDoc } from "firebase/firestore";
 import { colors } from "../theme";
 import HeaderBar from "../components/HeaderBar";
+import { RootStackParamList } from "../lib/types";
 
 export default function SignupScreen({
   navigation,
 }: {
-  navigation: NavigationProp<any>;
+  navigation: NavigationProp<RootStackParamList>;
 }) {
   const { email, password, setEmail, setPassword } = useAuthForm();
 
@@ -44,16 +45,14 @@ export default function SignupScreen({
 
       showSnackbar("Account created!", "success");
       navigation.navigate("AdminDashboard");
-    } catch (error: any) {
-      showSnackbar(
-        `Signup Error: ${error?.message || "Unknown error"}`,
-        "error"
-      );
+    } catch (error) {
+      if (error instanceof Error) {
+        showSnackbar(
+          `Signup Error: ${error?.message || "Unknown error"}`,
+          "error"
+        );
+      }
     }
-  };
-
-  const handleLogin = () => {
-    navigation.navigate("Login");
   };
 
   return (

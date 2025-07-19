@@ -34,8 +34,11 @@ export function useUpdateUserProfile() {
 
       showSnackbar("Profile updated successfully", "success");
     } catch (err) {
-      console.error("Profile update error:", err);
-      showSnackbar("An error occurred while updating the profile.", "error");
+      if (err instanceof Error) {
+        showSnackbar(`Error updating profile: ${err.message}`, "error");
+      } else {
+        showSnackbar("An error occurred while updating the profile.", "error");
+      }
     } finally {
       setUpdating(false);
     }

@@ -75,7 +75,7 @@ export default function RoundHistoryScreen() {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper loading={roundsLoading}>
       <HeaderBar title="History" />
       <View style={styles.container}>
         <ScrollView
@@ -99,22 +99,48 @@ export default function RoundHistoryScreen() {
                   showsVerticalScrollIndicator={true}
                   contentContainerStyle={{ paddingBottom: 20 }}
                 >
-                  <Text style={styles.roundTitle}>Round #{i + 1}</Text>
-                  <Text style={styles.dateText}>{roundDate}</Text>
-                  <Text style={styles.dateText}>
-                    {round.courseName}
-                    <Text style={styles.subtitle}>
-                      {" "}
-                      ({round?.tees?.tee_name} {round?.tees?.par_total} Par)
-                    </Text>
-                  </Text>
+                  <View style={styles.roundHeaderRow}>
+                    <View style={styles.roundHeaderColLeft}>
+                      <Text style={styles.roundTitle}>{round.courseName}</Text>
+                      <Text style={styles.dateText}>{`Round #${i + 1}`}</Text>
+                      <Text style={styles.dateText}>{roundDate}</Text>
+                    </View>
+                    <View style={styles.roundHeaderColRight}>
+                      <View style={styles.roundInfoBlock}>
+                        {round?.tees?.tee_name && (
+                          <View style={styles.roundInfoRow}>
+                            <Text style={styles.roundInfoLabel}>Tee:</Text>
+                            <Text style={styles.roundInfoValue}>
+                              {round.tees.tee_name}
+                            </Text>
+                          </View>
+                        )}
+                        {round?.tees?.par_total && (
+                          <View style={styles.roundInfoRow}>
+                            <Text style={styles.roundInfoLabel}>Par:</Text>
+                            <Text style={styles.roundInfoValue}>
+                              {round.tees.par_total}
+                            </Text>
+                          </View>
+                        )}
+                        {round?.roundScore ? (
+                          <View style={styles.roundInfoRow}>
+                            <Text style={styles.roundInfoLabel}>Score:</Text>
+                            <Text style={styles.roundInfoValue}>
+                              {round.roundScore}
+                            </Text>
+                          </View>
+                        ) : null}
+                      </View>
+                    </View>
+                  </View>
 
                   {Object.entries(groupedScores).map(([category, items]) => (
                     <View key={category} style={styles.categoryBlock}>
                       {items.map(({ concept, score }) => (
                         <View key={concept} style={styles.row}>
-                          <Text style={styles.concept}>{concept}</Text>
-                          <Text style={styles.score}>{score}</Text>
+                          <Text style={styles.concept}>{String(concept)}</Text>
+                          <Text style={styles.score}>{String(score)}</Text>
                         </View>
                       ))}
                     </View>
@@ -142,7 +168,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   card: {
-    backgroundColor: colors.whiteSmoke,
+    backgroundColor: "#F1F5F2",
     width: CARD_WIDTH,
     height: 500,
     borderRadius: 8,
@@ -167,7 +193,28 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   categoryBlock: {
+    minWidth: CARD_WIDTH - 40,
     marginBottom: 16,
+  },
+  roundInfoBlock: {
+    flexDirection: "column",
+    marginBottom: 12,
+    marginLeft: 2,
+  },
+  roundInfoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 2,
+  },
+  roundInfoLabel: {
+    fontWeight: "600",
+    color: "#4B5563",
+    marginRight: 6,
+    fontSize: 14,
+  },
+  roundInfoValue: {
+    color: "#2D6A4F",
+    fontSize: 14,
   },
   category: {
     color: "#2D6A4F",
@@ -200,5 +247,21 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     color: "#2D6A4F",
+  },
+  roundHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    width: "100%",
+    marginBottom: 8,
+  },
+  roundHeaderColLeft: {
+    flex: 1,
+    minWidth: 120,
+  },
+  roundHeaderColRight: {
+    flex: 1,
+    alignItems: "flex-end",
+    minWidth: 120,
   },
 });

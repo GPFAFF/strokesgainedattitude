@@ -1,7 +1,7 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MentalTrackerScreen from "../screens/MentalTrackerScreen";
-import DataVisualizationScreen from "../screens/DataVisualizationScreen";
+
 import ProfileScreen from "../screens/ProfileScreen";
 import AdminDashboardScreen from "../screens/AdminDashboardScreen";
 import { Ionicons } from "@expo/vector-icons";

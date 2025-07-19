@@ -6,7 +6,7 @@ import { User } from "firebase/auth";
 export const fetchMentalRounds = async (uid: string) => {
   const q = query(collection(db, "mentalRounds"), where("uid", "==", uid));
   const snapshot = await getDocs(q);
-  console.log("Fetched mental rounds:", snapshot.docs.length);
+
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 };
 

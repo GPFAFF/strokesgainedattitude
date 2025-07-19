@@ -10,12 +10,11 @@ import {
   Dimensions,
   Alert,
 } from "react-native";
-import Slider from "@react-native-community/slider";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import ScreenWrapper from "../components/ScreenWrapper";
-import { saveMentalRound } from "../services/saveRound";
+
 import { useAuth } from "../hooks/auth";
 import { useSnackbar } from "../context/SnackbarContext";
 import { usePaginationDots } from "../hooks/usePaginationDots";
@@ -25,6 +24,7 @@ import HeaderBar from "../components/HeaderBar";
 import mentalConcepts from "../data/mentalConcepts.json";
 import { colors, spacing } from "../theme";
 import { useSaveMentalRound } from "../hooks/useSaveRound";
+import { Course, RootStackParamList, Tee } from "../lib/types";
 
 const { width: screenWidth } = Dimensions.get("window");
 const CARD_PADDING = 16;
@@ -32,22 +32,18 @@ const CARD_WIDTH = screenWidth - CARD_PADDING * 2;
 
 export default function MentalTrackerScreen() {
   const { firebaseUser: user, authLoading } = useAuth();
-  const navigation = useNavigation<NativeStackNavigationProp<any>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const showSnackbar = useSnackbar();
 
-  const { mutateAsync: saveRound, isLoading, error } = useSaveMentalRound();
+  const { mutateAsync: saveRound } = useSaveMentalRound();
 
-  const [selectedCourse, setSelectedCourse] = useState<{
-    id: string;
-    name: string;
-    state: string;
-    city: string;
-  } | null>(null);
-  const [selectedTee, setSelectedTee] = useState(null);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [selectedTee, setSelectedTee] = useState<Tee | null>(null);
   const [trackableConcepts, setTrackableConcepts] = useState<
     { card: number; concept: string; category: string; trackable: boolean }[]
   >([]);
-  const [scores, setScores] = useState({});
+  const [scores, setScores] = useState<Record<string, number>>({});
   const [roundScore, setRoundScore] = useState<number | null>(null);
 
   const { activeIndex, handleScroll } = usePaginationDots(
@@ -60,7 +56,7 @@ export default function MentalTrackerScreen() {
     const filtered = mentalConcepts.filter((c) => c.trackable);
     setTrackableConcepts(filtered);
 
-    const defaultScores = {};
+    const defaultScores: Record<string, number> = {};
     filtered.forEach((c) => {
       defaultScores[c.concept] = 3;
     });
@@ -80,7 +76,7 @@ export default function MentalTrackerScreen() {
 
   const openCourseModal = () => {
     navigation.navigate("SelectCourse", {
-      onSelect: ({ course, tee }) => {
+      onSelect: ({ course, tee }: { course: Course; tee: Tee }) => {
         setSelectedCourse(course);
         setSelectedTee(tee);
       },
@@ -104,7 +100,7 @@ export default function MentalTrackerScreen() {
           courseState: selectedCourse.state,
           tees: selectedTee,
         },
-        roundScore: roundScore ?? null,
+        roundScore: roundScore ?? undefined,
       });
 
       showSnackbar("Round saved successfully!", "success");
@@ -116,8 +112,9 @@ export default function MentalTrackerScreen() {
         routes: [{ name: "AdminDashboard" }],
       });
     } catch (err) {
-      console.error("Save failed", err);
-      showSnackbar("Failed to save round", "error");
+      if (err instanceof Error) {
+        showSnackbar("Failed to save round", "error");
+      }
     }
   };
 

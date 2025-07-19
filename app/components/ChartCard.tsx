@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
 import { colors } from "../theme";
 
-const CARD_WIDTH = Dimensions.get("window").width * 0.85;
+const CARD_WIDTH = Dimensions.get("window").width * 0.9;
 const CARD_HEIGHT = Dimensions.get("window").height * 0.55;
 
 export default React.memo(function ChartCard({
@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
     marginHorizontal: 8,
+    paddingHorizontal: 16,
     backgroundColor: colors.green,
     borderRadius: 12,
     padding: 10,

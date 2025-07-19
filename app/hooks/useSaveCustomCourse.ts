@@ -45,9 +45,10 @@ export function useSaveCustomCourse() {
     onSuccess: () => {
       showSnackbar("Course saved successfully!", "success");
     },
-    onError: (error: any) => {
-      console.error("Error saving course:", error);
-      showSnackbar("Failed to save course. Please try again.", "error");
+    onError: (error: unknown) => {
+      if (error instanceof Error) {
+        showSnackbar(`Error saving course: ${error.message}`, "error");
+      }
     },
   });
 }

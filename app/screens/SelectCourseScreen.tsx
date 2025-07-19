@@ -3,18 +3,14 @@ import { Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import CourseSearchBar from "../components/CourseSearch";
 import { colors } from "../theme";
-
-type SelectCourseScreenRouteParams = {
-  onSelect?: (data: { course: any; tee: any }) => void;
-};
+import { Course, RootStackParamList, Tee } from "../lib/types";
 
 export default function SelectCourseScreen() {
-  const route =
-    useRoute<RouteProp<{ params: SelectCourseScreenRouteParams }, "params">>();
+  const route = useRoute<RouteProp<RootStackParamList>>();
   const navigation = useNavigation();
-  const onSelect = route.params?.onSelect;
+  const onSelect = (route.params as RootStackParamList["AddCourse"])?.onSelect;
 
-  const handleSelect = (course: any, tee: any) => {
+  const handleSelect = (course: Course, tee: Tee) => {
     onSelect?.({ course, tee });
     navigation.goBack();
   };

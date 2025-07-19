@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { View, Animated, StyleSheet, Dimensions } from "react-native";
+import { View, Animated, StyleSheet } from "react-native";
 
 type Props = {
   count: number;

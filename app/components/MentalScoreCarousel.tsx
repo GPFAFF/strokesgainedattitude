@@ -89,12 +89,7 @@ const MentalScoreScrollPager = ({ scores }: Props) => {
   const CARD_PADDING = 16;
   const CARD_WIDTH = screenWidth - CARD_PADDING * 2;
 
-  const dataLength = scores.length;
   const chartWidth = CARD_WIDTH + CARD_PADDING;
-  const spacing = 23;
-
-  const calculatedInitialSpacing =
-    (chartWidth - spacing * (dataLength - 1)) / 2;
 
   const toggleDetails = (category: string) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -187,6 +182,7 @@ const MentalScoreScrollPager = ({ scores }: Props) => {
         }}
       >
         <FlatList
+          ref={flatListRef}
           horizontal
           pagingEnabled
           snapToInterval={screenWidth}

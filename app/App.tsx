@@ -20,25 +20,9 @@ import { queryClient } from "./lib/queryClient";
 import AddCourseScreen from "./screens/AddCourseScreen";
 import { colors } from "./theme";
 import SelectCourseScreen from "./screens/SelectCourseScreen";
-import { Course, Tee } from "./lib/types";
+import { RootStackParamList } from "./lib/types";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
-
-type RootStackParamList = {
-  Onboarding: undefined;
-  Login: undefined;
-  Signup: undefined;
-  MentalTracker: undefined;
-  DataVisualization: undefined;
-  RoundHistory: undefined;
-  ChartScreen: undefined;
-  AdminDashboard: undefined;
-  AddCourse: undefined;
-  SelectCourse: {
-    onSelect: (payload: { course: Course; tee: Tee }) => void;
-    onAddCourse?: (query: string) => void;
-  };
-};
 
 const MainStack = createNativeStackNavigator();
 const RootStack = createNativeStackNavigator();

@@ -18,7 +18,7 @@ import { colors } from "../theme";
 import { useMentalRounds } from "../hooks/useMentalRounds";
 
 const { width: screenWidth } = Dimensions.get("window");
-const CARD_WIDTH = screenWidth * 0.85;
+const CARD_WIDTH = screenWidth * 0.9;
 const SPACING = 16;
 
 export default function ChartScreen() {
@@ -37,6 +37,7 @@ export default function ChartScreen() {
   const { data = [], isLoading: roundsLoading } = useMentalRounds(user);
 
   const labels = data.map((_, i) => `R${i + 1}`);
+
   const concepts = Object.keys(data[0]?.scores || {});
 
   const { activeIndex, handleScroll } = usePaginationDots(
@@ -73,8 +74,6 @@ export default function ChartScreen() {
       </ScreenWrapper>
     );
   }
-
-  console.log("concepts:", concepts);
 
   return (
     <ScreenWrapper>
@@ -133,11 +132,11 @@ const styles = StyleSheet.create({
   },
   card: {
     width: CARD_WIDTH,
-    // marginHorizontal: SPACING / 2,
+    marginHorizontal: SPACING / 2,
     height: Dimensions.get("window").height * 0.55,
-    backgroundColor: colors.warmTaupe,
+    paddingHorizontal: 16,
     borderRadius: 12,
-    padding: 10,
+    padding: 20,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
