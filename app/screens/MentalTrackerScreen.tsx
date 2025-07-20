@@ -159,6 +159,7 @@ export default function MentalTrackerScreen() {
         <ScrollView
           horizontal
           pagingEnabled
+          scrollEnabled={!!selectedCourse}
           snapToInterval={CARD_WIDTH}
           snapToAlignment="start"
           decelerationRate="fast"
@@ -167,68 +168,67 @@ export default function MentalTrackerScreen() {
           scrollEventThrottle={16}
         >
           {Object.entries(groupedByCategory).map(([category, concepts]) => (
-            <View key={category} style={{ width: CARD_WIDTH }}>
-              <View style={{ position: "relative" }}>
-                <View style={styles.card}>
-                  <Text style={styles.cardTitle}>{category}</Text>
+            <View
+              key={category}
+              style={{ width: CARD_WIDTH, position: "relative" }}
+            >
+              <View style={styles.card}>
+                <Text style={styles.cardTitle}>{category}</Text>
 
-                  {concepts.map(({ concept }) => (
-                    <View key={concept} style={styles.sliderContainer}>
-                      <Text style={styles.conceptLabel}>{concept}</Text>
+                {concepts.map(({ concept }) => (
+                  <View key={concept} style={styles.sliderContainer}>
+                    <Text style={styles.conceptLabel}>{concept}</Text>
 
-                      <View style={styles.counterRow}>
-                        <TouchableOpacity
-                          onPress={() =>
-                            setScores((prev) => ({
-                              ...prev,
-                              [concept]: Math.max(1, prev[concept] - 1),
-                            }))
-                          }
-                          style={[
-                            styles.counterButton,
-                            (!selectedCourse || !selectedTee) && {
-                              opacity: 0.4,
-                            },
-                          ]}
-                          disabled={!selectedCourse || !selectedTee}
-                        >
-                          <Text style={styles.counterText}>−</Text>
-                        </TouchableOpacity>
+                    <View style={styles.counterRow}>
+                      <TouchableOpacity
+                        onPress={() =>
+                          setScores((prev) => ({
+                            ...prev,
+                            [concept]: Math.max(1, prev[concept] - 1),
+                          }))
+                        }
+                        style={[
+                          styles.counterButton,
+                          (!selectedCourse || !selectedTee) && {
+                            opacity: 0.4,
+                          },
+                        ]}
+                        disabled={!selectedCourse || !selectedTee}
+                      >
+                        <Text style={styles.counterText}>−</Text>
+                      </TouchableOpacity>
 
-                        <Text style={styles.counterValue}>
-                          {scores[concept]}
-                        </Text>
+                      <Text style={styles.counterValue}>{scores[concept]}</Text>
 
-                        <TouchableOpacity
-                          onPress={() =>
-                            setScores((prev) => ({
-                              ...prev,
-                              [concept]: Math.min(5, prev[concept] + 1),
-                            }))
-                          }
-                          style={[
-                            styles.counterButton,
-                            (!selectedCourse || !selectedTee) && {
-                              opacity: 0.4,
-                            },
-                          ]}
-                          disabled={!selectedCourse || !selectedTee}
-                        >
-                          <Text style={styles.counterText}>＋</Text>
-                        </TouchableOpacity>
-                      </View>
+                      <TouchableOpacity
+                        onPress={() =>
+                          setScores((prev) => ({
+                            ...prev,
+                            [concept]: Math.min(5, prev[concept] + 1),
+                          }))
+                        }
+                        style={[
+                          styles.counterButton,
+                          (!selectedCourse || !selectedTee) && {
+                            opacity: 0.4,
+                          },
+                        ]}
+                        disabled={!selectedCourse || !selectedTee}
+                      >
+                        <Text style={styles.counterText}>＋</Text>
+                      </TouchableOpacity>
                     </View>
-                  ))}
-                </View>
-
-                {!selectedCourse || !selectedTee ? (
-                  <View style={styles.cardOverlay}>
-                    <Text style={styles.overlayText}>
-                      Select a course to enable scoring
-                    </Text>
                   </View>
-                ) : null}
+                ))}
               </View>
+
+              {!selectedCourse || !selectedTee ? (
+                <View style={styles.cardOverlay}>
+                  <Text style={styles.overlayText}>
+                    Select a course to enable scoring
+                  </Text>
+                </View>
+              ) : null}
             </View>
           ))}
         </ScrollView>

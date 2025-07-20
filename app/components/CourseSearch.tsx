@@ -21,11 +21,13 @@ type CourseSearchBarProps = {
     state: string;
   }) => void;
   onResultsEmpty?: (isEmpty: boolean) => void;
+  onClearSelection?: () => void; // ← new
 };
 
 export default function CourseSearchBar({
   onSelect,
   onResultsEmpty,
+  onClearSelection,
 }: CourseSearchBarProps) {
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 400);
@@ -33,10 +35,10 @@ export default function CourseSearchBar({
   const { data = [], isFetching } = useCourseSearch(debouncedQuery);
 
   useEffect(() => {
-    if (data.length === 0 && query.trim().length > 2) {
-      onResultsEmpty?.(true);
-    } else {
-      onResultsEmpty?.(false);
+    const noResults = data.length === 0 && query.trim().length > 2;
+    onResultsEmpty?.(noResults);
+    if (noResults) {
+      onClearSelection?.(); // ← clear both course and tee
     }
   }, [data]);
 

@@ -45,13 +45,11 @@ export default function SelectCourseScreen() {
       <CourseSearchBar
         onSelect={(course) => {
           setSelectedCourse(course);
-          // setSelectedTee(null);
+          setSelectedTee(null); // clear tee when course changes
         }}
-        onResultsEmpty={(isEmpty) => {
-          if (isEmpty) {
-            setSelectedCourse(null);
-            setSelectedTee(null);
-          }
+        onClearSelection={() => {
+          setSelectedCourse(null);
+          setSelectedTee(null);
         }}
       />
 
