@@ -85,11 +85,11 @@ const MentalScoreScrollPager = ({ scores }: Props) => {
     UIManager.setLayoutAnimationEnabledExperimental(true);
   }
 
-  const { width: screenWidth } = Dimensions.get("window");
-  const CARD_PADDING = 16;
-  const CARD_WIDTH = screenWidth - CARD_PADDING * 2;
+  const SCREEN_WIDTH = Dimensions.get("window").width;
+  const WRAPPER_PADDING = 16; // from ScreenWrapper
+  const CARD_WIDTH = SCREEN_WIDTH - WRAPPER_PADDING * 2;
 
-  const chartWidth = CARD_WIDTH + CARD_PADDING;
+  const chartWidth = CARD_WIDTH + WRAPPER_PADDING;
 
   const toggleDetails = (category: string) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -151,15 +151,15 @@ const MentalScoreScrollPager = ({ scores }: Props) => {
             }))}
             areaChart
             hideDataPoints={false}
-            dataPointsColor="#74C69D"
+            // dataPointsColor="#74C69D"
             dataPointsRadius={4}
             focusedDataPointColor="#1B4332"
-            focusedDataPointRadius={6}
+            // focusedDataPointRadius={6}
             startFillColor="#74C69D"
             endFillColor="#D8F3DC"
             isAnimated
             noOfSections={5}
-            startOpacity={0.9}
+            startOpacity={0.6}
             endOpacity={0}
             maxValue={5}
             xAxisLabelTextStyle={{ width: 0, display: "none" }}
@@ -185,12 +185,13 @@ const MentalScoreScrollPager = ({ scores }: Props) => {
           ref={flatListRef}
           horizontal
           pagingEnabled
-          snapToInterval={screenWidth}
+          snapToInterval={CARD_WIDTH}
+          snapToAlignment="start"
           decelerationRate="fast"
           showsHorizontalScrollIndicator={false}
-          snapToAlignment="start"
           keyExtractor={(item) => item.category}
           data={scores}
+          viewabilityConfig={viewabilityConfig}
           onViewableItemsChanged={onViewableItemsChanged}
           ListEmptyComponent={
             <EmptyOverlay
@@ -198,10 +199,11 @@ const MentalScoreScrollPager = ({ scores }: Props) => {
               style={styles.cardOverlay}
             />
           }
-          viewabilityConfig={viewabilityConfig}
           renderItem={({ item }) => (
-            <View style={{ width: screenWidth }}>
-              <View style={[styles.card, { marginHorizontal: CARD_PADDING }]}>
+            <View style={{ width: CARD_WIDTH }}>
+              <View
+                style={[styles.card, { marginHorizontal: WRAPPER_PADDING }]}
+              >
                 <TouchableOpacity onPress={() => toggleDetails(item.category)}>
                   <Text style={styles.category}>{item.category}</Text>
                   <Text style={styles.score}>
@@ -262,6 +264,7 @@ const styles = StyleSheet.create({
     marginRight: 32,
     borderWidth: 1,
     borderColor: colors.darkGreen,
+    width: "100%",
   },
   chartContainer: {
     marginBottom: -32,

@@ -26,16 +26,15 @@ import { colors, spacing } from "../theme";
 import { useSaveMentalRound } from "../hooks/useSaveRound";
 import { Course, RootStackParamList, Tee } from "../lib/types";
 
-const { width: screenWidth } = Dimensions.get("window");
-const CARD_PADDING = 16;
-const CARD_WIDTH = screenWidth - CARD_PADDING * 2;
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const WRAPPER_PADDING = 16;
+const CARD_WIDTH = SCREEN_WIDTH - WRAPPER_PADDING * 2;
 
 export default function MentalTrackerScreen() {
   const { firebaseUser: user, authLoading } = useAuth();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const showSnackbar = useSnackbar();
-
   const { mutateAsync: saveRound } = useSaveMentalRound();
 
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
@@ -48,7 +47,7 @@ export default function MentalTrackerScreen() {
 
   const { activeIndex, handleScroll } = usePaginationDots(
     CARD_WIDTH,
-    CARD_PADDING,
+    WRAPPER_PADDING,
     trackableConcepts.length
   );
 
@@ -160,7 +159,7 @@ export default function MentalTrackerScreen() {
         <ScrollView
           horizontal
           pagingEnabled
-          snapToInterval={screenWidth}
+          snapToInterval={CARD_WIDTH}
           snapToAlignment="start"
           decelerationRate="fast"
           showsHorizontalScrollIndicator={false}
@@ -168,7 +167,7 @@ export default function MentalTrackerScreen() {
           scrollEventThrottle={16}
         >
           {Object.entries(groupedByCategory).map(([category, concepts]) => (
-            <View key={category} style={{ width: screenWidth }}>
+            <View key={category} style={{ width: CARD_WIDTH }}>
               <View style={{ position: "relative" }}>
                 <View style={styles.card}>
                   <Text style={styles.cardTitle}>{category}</Text>
@@ -256,25 +255,13 @@ export default function MentalTrackerScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, marginTop: -24 },
-  courseSelector: {
-    fontWeight: "600",
-    fontSize: 16,
-    marginBottom: 20,
-    color: "#1B4332",
-  },
   card: {
-    width: CARD_WIDTH,
-    paddingHorizontal: 16,
+    width: "100%",
     alignSelf: "center",
-    backgroundColor: "#F1F5F2",
+    height: 100,
     borderRadius: 8,
     padding: 20,
-    height: Dimensions.get("window").height * 0.49,
     shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 4,
-    marginRight: 32,
   },
   cardTitle: {
     fontSize: 32,
@@ -285,8 +272,6 @@ const styles = StyleSheet.create({
   },
   cardOverlay: {
     ...StyleSheet.absoluteFillObject,
-    width: CARD_WIDTH,
-
     backgroundColor: "rgba(61, 58, 58, 0.9)",
     justifyContent: "center",
     alignItems: "center",
@@ -306,19 +291,12 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 32,
   },
-  cardScroll: {
-    paddingBottom: 10,
-  },
   sliderContainer: {
     marginBottom: 10,
   },
   conceptLabel: {
     fontSize: 16,
     marginBottom: 6,
-  },
-  slider: {
-    width: "100%",
-    height: 40,
   },
   counterRow: {
     flexDirection: "row",

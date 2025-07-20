@@ -89,23 +89,39 @@ export const searchCourses = functions
           MAX_RESULTS - firestoreCourses.length
         );
 
-        const apiCourses = limited.map((course) => ({
-          id: `api-${course.id}`,
-          name: course.course_name || "",
-          club: course.club_name || "",
-          city: course.location?.city || "",
-          state: course.location?.state || "",
-          country: course.location?.country || "",
-          ...(course.location?.latitude !== undefined && {
-            lat: course.location.latitude,
-          }),
-          ...(course.location?.longitude !== undefined && {
-            lng: course.location.longitude,
-          }),
-          searchIndex: course.course_name?.toLowerCase() || "",
-          tees: course.tees || {},
-          isCustom: false,
-        }));
+        const apiCourses = limited
+          .filter(
+            (course) =>
+              course.tees &&
+              typeof course.tees === "object" &&
+              Object.keys(course.tees).length > 0
+          )
+          .map((course) => ({
+            id: `api-${course.id}`,
+            name: course.course_name || "",
+            club: course.club_name || "",
+            city: course.location?.city || "",
+            state: course.location?.state || "",
+            country: course.location?.country || "",
+            ...(course.location?.latitude !== undefined && {
+              lat: course.location.latitude,
+            }),
+            ...(course.location?.longitude !== undefined && {
+              lng: course.location.longitude,
+            }),
+            searchIndex: [
+              course.course_name,
+              course.club_name,
+              course.location?.city,
+              course.location?.state,
+              course.location?.country,
+            ]
+              .filter(Boolean) // remove undefined/null
+              .map((s) => s.toLowerCase())
+              .join(" "),
+            tees: course.tees,
+            isCustom: false,
+          }));
 
         const batch = db.batch();
         apiCourses.forEach((c) => {

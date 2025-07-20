@@ -18,8 +18,8 @@ import { colors } from "../theme";
 import { useMentalRounds } from "../hooks/useMentalRounds";
 
 const { width: screenWidth } = Dimensions.get("window");
-const CARD_WIDTH = screenWidth * 0.9;
-const SPACING = 16;
+const CARD_PADDING = 16;
+const CARD_WIDTH = screenWidth - CARD_PADDING * 2;
 
 export default function ChartScreen() {
   const { firebaseUser: user } = useAuth();
@@ -42,7 +42,7 @@ export default function ChartScreen() {
 
   const { activeIndex, handleScroll } = usePaginationDots(
     CARD_WIDTH,
-    SPACING,
+    CARD_PADDING,
     concepts.length
   );
 
@@ -84,8 +84,8 @@ export default function ChartScreen() {
           keyExtractor={(c) => c}
           horizontal
           pagingEnabled
-          snapToInterval={CARD_WIDTH + SPACING}
-          snapToAlignment="center"
+          snapToInterval={CARD_WIDTH}
+          snapToAlignment="start"
           showsHorizontalScrollIndicator={false}
           decelerationRate="fast"
           onScroll={handleScroll}
@@ -97,8 +97,8 @@ export default function ChartScreen() {
             />
           )}
           initialNumToRender={1}
-          windowSize={3}
-          // removeClippedSubviews
+          windowSize={5}
+          removeClippedSubviews
           viewabilityConfig={viewConfig}
           onViewableItemsChanged={onViewableItemsChanged}
         />
@@ -111,6 +111,8 @@ export default function ChartScreen() {
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
+    display: "flex",
+    flex: 1,
   },
   loaderWrapper: {
     flex: 1,
@@ -128,24 +130,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#1B4332",
     marginVertical: 16,
-    textAlign: "center",
-  },
-  card: {
-    width: CARD_WIDTH,
-    marginHorizontal: SPACING / 2,
-    height: Dimensions.get("window").height * 0.55,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    padding: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-  },
-  chartTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#2D6A4F",
-    marginBottom: 12,
     textAlign: "center",
   },
 });

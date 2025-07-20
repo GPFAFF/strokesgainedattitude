@@ -16,9 +16,8 @@ import HeaderBar from "../components/HeaderBar";
 import { colors } from "../theme";
 import { useMentalRounds } from "../hooks/useMentalRounds";
 
-const { width: screenWidth } = Dimensions.get("window");
-const CARD_WIDTH = screenWidth * 0.9;
-const SPACING = 16;
+const screenWidth = Dimensions.get("window").width;
+const CARD_WIDTH = screenWidth - 32;
 
 export default function RoundHistoryScreen() {
   const { firebaseUser: user } = useAuth();
@@ -26,7 +25,7 @@ export default function RoundHistoryScreen() {
 
   const { activeIndex, handleScroll } = usePaginationDots(
     CARD_WIDTH,
-    SPACING,
+    16,
     data.length
   );
 
@@ -81,8 +80,8 @@ export default function RoundHistoryScreen() {
         <ScrollView
           horizontal
           pagingEnabled
-          snapToInterval={CARD_WIDTH + SPACING}
-          snapToAlignment="center"
+          snapToInterval={CARD_WIDTH}
+          snapToAlignment="start"
           showsHorizontalScrollIndicator={false}
           decelerationRate="fast"
           scrollEventThrottle={16}
@@ -168,18 +167,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   card: {
-    backgroundColor: "#F1F5F2",
     width: CARD_WIDTH,
     height: 500,
-    borderRadius: 8,
     padding: 20,
     alignItems: "flex-start",
     justifyContent: "flex-start",
-    shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 4,
-    marginHorizontal: SPACING / 2,
   },
   roundTitle: {
     color: "#1B4332",

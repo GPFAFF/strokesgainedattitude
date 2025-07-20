@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
 import { colors } from "../theme";
 
-const CARD_WIDTH = Dimensions.get("window").width * 0.9;
+const CARD_WIDTH = Dimensions.get("window").width - 32; // Same logic
+
 const CARD_HEIGHT = Dimensions.get("window").height * 0.55;
 
 export default React.memo(function ChartCard({
@@ -31,12 +32,11 @@ export default React.memo(function ChartCard({
         data={data}
         spacing={40}
         thickness={2}
-        initialSpacing={23}
         color="#1B4332"
         areaChart
         startFillColor="#74C69D"
         endFillColor="#D8F3DC"
-        startOpacity={0.3}
+        startOpacity={0.6}
         endOpacity={0}
         yAxisLabelWidth={50}
         maxValue={5}
@@ -52,19 +52,15 @@ const styles = StyleSheet.create({
   card: {
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
-    marginHorizontal: 8,
-    paddingHorizontal: 16,
-    backgroundColor: colors.green,
-    borderRadius: 12,
-    padding: 10,
-    alignItems: "center",
+    paddingHorizontal: 0,
     justifyContent: "center",
-    overflow: "scroll",
+    alignItems: "center",
   },
   chartTitle: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: "600",
     color: "#2D6A4F",
-    marginBottom: 12,
+    marginBottom: 24,
+    marginLeft: 0, // avoid offset if misaligned
   },
 });
