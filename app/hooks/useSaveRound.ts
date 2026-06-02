@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 import { db as firestore } from "../firebase/config";
 import concepts from "../data/mentalConcepts.json";
+import { Tee } from "../lib/types";
 
 interface MentalRoundScores {
   [key: string]: number;
@@ -20,11 +21,8 @@ interface CourseInfo {
   courseName?: string;
   courseCity?: string;
   courseState?: string;
-  tees: {
-    course_rating: string;
-    slope_rating: string;
-    tee_name: string;
-  }[];
+  // The single tee box selected for this round.
+  tees: Tee;
 }
 
 type SaveRoundPayload = {

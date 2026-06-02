@@ -12,14 +12,10 @@ import Fuse from "fuse.js";
 import { useCourseSearch } from "../hooks/useCourseSearch";
 import { useDebounce } from "../hooks/debounce";
 import { colors } from "../theme";
+import { Course } from "../lib/types";
 
 type CourseSearchBarProps = {
-  onSelect: (course: {
-    id: string;
-    name: string;
-    city: string;
-    state: string;
-  }) => void;
+  onSelect: (course: Course) => void;
   onResultsEmpty?: (isEmpty: boolean) => void;
   onClearSelection?: () => void; // ← new
 };
@@ -42,21 +38,13 @@ export default function CourseSearchBar({
     }
   }, [data]);
 
-  const results = useMemo(() => {
-    const normalized = data.map(
-      (item: {
-        id: string;
-        course_name?: string;
-        name?: string;
-        city?: string;
-        state?: string;
-      }) => ({
-        ...item,
-        name: item.course_name || item.name || "",
-        city: item?.city || "",
-        state: item?.state || "",
-      })
-    );
+  const results = useMemo<Course[]>(() => {
+    const normalized: Course[] = data.map((item) => ({
+      ...item,
+      name: item.name || "",
+      city: item?.city || "",
+      state: item?.state || "",
+    }));
 
     const fuse = new Fuse(normalized, {
       keys: ["name", "city", "state"],
@@ -80,11 +68,10 @@ export default function CourseSearchBar({
       <FlashList
         data={results}
         estimatedItemSize={56}
-        keyExtractor={(item: { id: string; isCustom?: boolean }) =>
+        keyExtractor={(item: Course) =>
           item.isCustom ? `custom-${item.id}` : `api-${item.id}`
         }
-        renderItem={({ item }) => {
-          console.log("🔍 Rendering item:", item);
+        renderItem={({ item }: { item: Course }) => {
           return (
             <TouchableOpacity
               style={styles.item}

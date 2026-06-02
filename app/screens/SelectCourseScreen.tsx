@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import CourseSearchBar from "../components/CourseSearch";
 import { colors } from "../theme";
 import { Course, RootStackParamList, Tee } from "../lib/types";
 
 export default function SelectCourseScreen() {
   const route = useRoute<RouteProp<RootStackParamList>>();
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const onSelect = (route.params as RootStackParamList["AddCourse"])?.onSelect;
 
   const handleSelect = (course: Course, tee: Tee) => {
@@ -15,8 +17,8 @@ export default function SelectCourseScreen() {
     navigation.goBack();
   };
 
-  const [selectedCourse, setSelectedCourse] = useState(null);
-  const [selectedTee, setSelectedTee] = useState(null);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [selectedTee, setSelectedTee] = useState<Tee | null>(null);
 
   const allTees =
     selectedCourse?.tees?.male?.concat(selectedCourse?.tees?.female || []) ||
