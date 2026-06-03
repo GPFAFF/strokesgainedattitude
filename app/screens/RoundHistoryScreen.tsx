@@ -13,7 +13,6 @@ import ScreenWrapper from "../components/ScreenWrapper";
 import { usePaginationDots } from "../hooks/usePaginationDots";
 import PaginationDots from "../components/PaginationDots";
 import HeaderBar from "../components/HeaderBar";
-import { colors } from "../theme";
 import { useMentalRounds } from "../hooks/useMentalRounds";
 
 const screenWidth = Dimensions.get("window").width;

@@ -1,15 +1,67 @@
+import type { Timestamp } from "firebase/firestore";
+
+// A single tee box as returned by the GolfCourse API / stored in Firestore.
+// The upstream API uses string ratings, so we keep them permissive.
+type Tee = {
+  tee_name: string;
+  course_rating?: number | string;
+  slope_rating?: number | string;
+  par_total?: number | string;
+  total_yards?: number | string;
+  number_of_holes?: number;
+};
+
+// Tees are grouped by gender in the GolfCourse API response.
+type CourseTees = {
+  male?: Tee[];
+  female?: Tee[];
+};
+
 type Course = {
   id: string;
   name: string;
-  location?: string;
-  rating?: number;
+  club?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  lat?: number;
+  lng?: number;
+  searchIndex?: string;
+  tees?: CourseTees;
+  isCustom?: boolean;
 };
 
-type Tee = {
+// A saved mental-tracking round (Firestore `mentalRounds` document).
+type MentalRound = {
   id: string;
-  color: string;
-  slope?: number;
-  rating?: number;
+  uid: string;
+  createdAt?: Timestamp;
+  scores: Record<string, number>;
+  categoryScores?: Record<string, number>;
+  courseId?: string;
+  courseName?: string;
+  courseCity?: string;
+  courseState?: string;
+  // Stored as the single selected tee box for the round.
+  tees?: Tee;
+  roundScore?: number;
+  // (Score - Course Rating) × 113 / Slope — normalises performance across
+  // courses. Lower = better (under expected). Stored at save time.
+  handicapDifferential?: number;
+  // Optional shot-category stats for future SG correlations.
+  putts?: number;
+  fairwaysHit?: number;
+  greensInRegulation?: number;
+};
+
+// Firestore `users/{uid}` document.
+type UserProfile = {
+  email?: string;
+  createdAt?: Timestamp;
+  profileComplete?: boolean;
+  rounds?: string[];
+  handicap?: number | null;
+  [key: string]: unknown;
 };
 
 type RootStackParamList = {
@@ -20,7 +72,8 @@ type RootStackParamList = {
   DataVisualization: undefined;
   RoundHistory: undefined;
   ChartScreen: undefined;
-  AdminDashboard: { screen: string };
+  Insights: undefined;
+  AdminDashboard: { screen: string } | undefined;
   SelectCourse: {
     onSelect: (payload: { course: Course; tee: Tee }) => void;
     onAddCourse?: (query: string) => void;
@@ -49,7 +102,10 @@ type AddCourseScreenRouteParams = {
 
 export type {
   Course,
+  CourseTees,
   Tee,
+  MentalRound,
+  UserProfile,
   RootStackParamList,
   CourseInfo,
   MentalRoundScores,

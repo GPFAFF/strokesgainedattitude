@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
-import { colors } from "../theme";
 
 const CARD_WIDTH = Dimensions.get("window").width - 32; // Same logic
 

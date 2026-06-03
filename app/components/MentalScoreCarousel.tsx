@@ -218,7 +218,7 @@ const MentalScoreScrollPager = ({ scores }: Props) => {
 
                 {expandedCategory === item.category && (
                   <View style={styles.detailsContainer}>
-                    {item.concepts.map((c) => (
+                    {item.concepts.map((c: CategoryScore["concepts"][number]) => (
                       <View key={c.concept} style={styles.detailItem}>
                         <Text style={styles.conceptText}>{c.score}</Text>
                         <Text style={styles.detailScore}>{c.concept} / 3</Text>

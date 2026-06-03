@@ -21,12 +21,18 @@ export const useMentalCategoryStats = (uid?: string) => {
 
       return snapshot.docs.map((doc) => {
         const data = doc.data();
+        // Each concept entry is stored as { total, count, average }.
+        const concepts = Object.entries(
+          (data.concepts || {}) as Record<string, { average?: number }>
+        ).map(([concept, stat]) => ({
+          concept,
+          score: Number(stat?.average ?? 0),
+        }));
+
         return {
           category: doc.id,
           averageScore: data.average || 0,
-          concepts: Object.entries(data.concepts || {}).map(
-            ([concept, score]) => ({ concept, score: Number(score) })
-          ),
+          concepts,
         };
       });
     },

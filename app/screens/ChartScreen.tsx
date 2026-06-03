@@ -14,7 +14,6 @@ import { usePaginationDots } from "../hooks/usePaginationDots";
 import PaginationDots from "../components/PaginationDots";
 import HeaderBar from "../components/HeaderBar";
 import ChartCard from "../components/ChartCard";
-import { colors } from "../theme";
 import { useMentalRounds } from "../hooks/useMentalRounds";
 
 const { width: screenWidth } = Dimensions.get("window");
@@ -35,8 +34,6 @@ export default function ChartScreen() {
   ).current;
 
   const { data = [], isLoading: roundsLoading } = useMentalRounds(user);
-
-  const labels = data.map((_, i) => `R${i + 1}`);
 
   const concepts = Object.keys(data[0]?.scores || {});
 
