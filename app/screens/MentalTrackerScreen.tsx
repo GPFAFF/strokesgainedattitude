@@ -14,7 +14,6 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import ScreenWrapper from "../components/ScreenWrapper";
-
 import { useAuth } from "../hooks/auth";
 import { useSnackbar } from "../context/SnackbarContext";
 import { usePaginationDots } from "../hooks/usePaginationDots";
@@ -30,6 +29,11 @@ const SCREEN_WIDTH = Dimensions.get("window").width;
 const WRAPPER_PADDING = 16;
 const CARD_WIDTH = SCREEN_WIDTH - WRAPPER_PADDING * 2;
 
+function parseIntOrNull(text: string): number | null {
+  const n = parseInt(text, 10);
+  return isNaN(n) ? null : n;
+}
+
 export default function MentalTrackerScreen() {
   const { firebaseUser: user, authLoading } = useAuth();
   const navigation =
@@ -44,6 +48,11 @@ export default function MentalTrackerScreen() {
   >([]);
   const [scores, setScores] = useState<Record<string, number>>({});
   const [roundScore, setRoundScore] = useState<number | null>(null);
+  const [putts, setPutts] = useState<number | null>(null);
+  const [fairwaysHit, setFairwaysHit] = useState<number | null>(null);
+  const [greensInRegulation, setGreensInRegulation] = useState<number | null>(
+    null
+  );
 
   const { activeIndex, handleScroll } = usePaginationDots(
     CARD_WIDTH,
@@ -100,12 +109,19 @@ export default function MentalTrackerScreen() {
           tees: selectedTee,
         },
         roundScore: roundScore ?? undefined,
+        putts: putts ?? undefined,
+        fairwaysHit: fairwaysHit ?? undefined,
+        greensInRegulation: greensInRegulation ?? undefined,
       });
 
       showSnackbar("Round saved successfully!", "success");
       setScores({});
       setSelectedCourse(null);
       setSelectedTee(null);
+      setRoundScore(null);
+      setPutts(null);
+      setFairwaysHit(null);
+      setGreensInRegulation(null);
       navigation.reset({
         index: 0,
         routes: [{ name: "AdminDashboard" }],
@@ -131,7 +147,7 @@ export default function MentalTrackerScreen() {
       <HeaderBar title="Scoring" />
       <View style={styles.container}>
         <TouchableOpacity onPress={openCourseModal}>
-          <Text style={[styles.saveButton, { marginBottom: 10 }]}>
+          <Text style={[styles.courseButton, { marginBottom: 10 }]}>
             <Text style={styles.saveText}>
               {selectedCourse
                 ? `${selectedCourse.name} · ${selectedTee?.tee_name}`
@@ -141,17 +157,34 @@ export default function MentalTrackerScreen() {
         </TouchableOpacity>
 
         {selectedCourse && selectedTee && (
-          <View style={{ width: 150 }}>
+          <View style={styles.statsRow}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, styles.statInput]}
               keyboardType="numeric"
-              placeholder="Enter total score"
+              placeholder="Score"
               value={roundScore ? String(roundScore) : ""}
-              onChangeText={(text) => {
-                const num = parseInt(text, 10);
-                if (!isNaN(num)) setRoundScore(num);
-                else setRoundScore(null);
-              }}
+              onChangeText={(t) => setRoundScore(parseIntOrNull(t))}
+            />
+            <TextInput
+              style={[styles.input, styles.statInput]}
+              keyboardType="numeric"
+              placeholder="Putts"
+              value={putts ? String(putts) : ""}
+              onChangeText={(t) => setPutts(parseIntOrNull(t))}
+            />
+            <TextInput
+              style={[styles.input, styles.statInput]}
+              keyboardType="numeric"
+              placeholder="FWY"
+              value={fairwaysHit ? String(fairwaysHit) : ""}
+              onChangeText={(t) => setFairwaysHit(parseIntOrNull(t))}
+            />
+            <TextInput
+              style={[styles.input, styles.statInput]}
+              keyboardType="numeric"
+              placeholder="GIR"
+              value={greensInRegulation ? String(greensInRegulation) : ""}
+              onChangeText={(t) => setGreensInRegulation(parseIntOrNull(t))}
             />
           </View>
         )}
@@ -278,12 +311,20 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 20,
   },
+  statsRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
   input: {
     padding: 12,
-    marginBottom: 16,
     borderRadius: 8,
     color: "#1B4332",
     backgroundColor: colors.whiteSmoke,
+  },
+  statInput: {
+    flex: 1,
+    textAlign: "center",
   },
   overlayText: {
     textAlign: "center",
@@ -322,6 +363,12 @@ const styles = StyleSheet.create({
   counterValue: {
     fontSize: 32,
     fontWeight: "600",
+  },
+  courseButton: {
+    backgroundColor: colors.sunsetCoral,
+    padding: spacing.md,
+    borderRadius: spacing.sm,
+    alignItems: "center",
   },
   saveButton: {
     backgroundColor: colors.sunsetCoral,

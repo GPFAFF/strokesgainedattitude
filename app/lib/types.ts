@@ -45,6 +45,13 @@ type MentalRound = {
   // Stored as the single selected tee box for the round.
   tees?: Tee;
   roundScore?: number;
+  // (Score - Course Rating) × 113 / Slope — normalises performance across
+  // courses. Lower = better (under expected). Stored at save time.
+  handicapDifferential?: number;
+  // Optional shot-category stats for future SG correlations.
+  putts?: number;
+  fairwaysHit?: number;
+  greensInRegulation?: number;
 };
 
 // Firestore `users/{uid}` document.
@@ -65,6 +72,7 @@ type RootStackParamList = {
   DataVisualization: undefined;
   RoundHistory: undefined;
   ChartScreen: undefined;
+  Insights: undefined;
   AdminDashboard: { screen: string } | undefined;
   SelectCourse: {
     onSelect: (payload: { course: Course; tee: Tee }) => void;

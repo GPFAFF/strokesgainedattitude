@@ -21,7 +21,6 @@ interface CourseInfo {
   courseName?: string;
   courseCity?: string;
   courseState?: string;
-  // The single tee box selected for this round.
   tees: Tee;
 }
 
@@ -30,7 +29,20 @@ type SaveRoundPayload = {
   scores: MentalRoundScores;
   courseInfo?: CourseInfo;
   roundScore?: number;
+  putts?: number;
+  fairwaysHit?: number;
+  greensInRegulation?: number;
 };
+
+function computeHandicapDifferential(
+  score: number,
+  tee: Tee
+): number | undefined {
+  const rating = parseFloat(String(tee.course_rating));
+  const slope = parseFloat(String(tee.slope_rating));
+  if (isNaN(rating) || isNaN(slope) || slope === 0) return undefined;
+  return parseFloat(((score - rating) * 113 / slope).toFixed(1));
+}
 
 export const useSaveMentalRound = () => {
   const queryClient = useQueryClient();
@@ -41,6 +53,9 @@ export const useSaveMentalRound = () => {
       scores,
       courseInfo,
       roundScore,
+      putts,
+      fairwaysHit,
+      greensInRegulation,
     }: SaveRoundPayload) => {
       const categoryMap: { [key: string]: number[] } = {};
 
@@ -61,6 +76,11 @@ export const useSaveMentalRound = () => {
         }
       }
 
+      const differential =
+        roundScore && courseInfo?.tees
+          ? computeHandicapDifferential(roundScore, courseInfo.tees)
+          : undefined;
+
       const newRound = {
         uid: user.uid,
         createdAt: serverTimestamp(),
@@ -70,8 +90,14 @@ export const useSaveMentalRound = () => {
         ...(courseInfo?.courseName && { courseName: courseInfo.courseName }),
         ...(courseInfo?.courseCity && { courseCity: courseInfo.courseCity }),
         ...(courseInfo?.courseState && { courseState: courseInfo.courseState }),
-        tees: courseInfo?.tees || [],
-        roundScore: roundScore || 0,
+        tees: courseInfo?.tees,
+        roundScore: roundScore ?? 0,
+        ...(differential !== undefined && {
+          handicapDifferential: differential,
+        }),
+        ...(putts !== undefined && { putts }),
+        ...(fairwaysHit !== undefined && { fairwaysHit }),
+        ...(greensInRegulation !== undefined && { greensInRegulation }),
       };
 
       const docRef = await addDoc(
@@ -94,7 +120,6 @@ export const useSaveMentalRound = () => {
       queryClient.invalidateQueries({
         queryKey: ["mentalCategoryStats", variables.user.uid],
       });
-
       queryClient.invalidateQueries({
         queryKey: ["mentalRounds", variables.user.uid],
       });
