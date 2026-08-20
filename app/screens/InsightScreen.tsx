@@ -152,8 +152,8 @@ function DotPlot({
 // ─── screen ─────────────────────────────────────────────────────────────────
 
 export default function InsightScreen() {
-  const { firebaseUser: user } = useAuth();
-  const { data: rounds = [], isLoading } = useMentalRounds(user);
+  const { userId } = useAuth();
+  const { data: rounds = [], isLoading } = useMentalRounds(userId);
 
   const roundsWithDiff = useMemo(
     () => rounds.filter((r) => r.handicapDifferential !== undefined),
@@ -203,7 +203,7 @@ export default function InsightScreen() {
   const avgScoreBottom = average(bottomRounds.map((r) => r.roundScore ?? 0));
   const scoreDelta = avgScoreBottom - avgScoreTop;
 
-  if (!user) {
+  if (!userId) {
     return (
       <ScreenWrapper>
         <View style={styles.center}>

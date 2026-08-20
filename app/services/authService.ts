@@ -1,28 +1,23 @@
-import { auth } from "../firebase/config";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-} from "firebase/auth";
+import { supabase } from "../lib/supabase";
 
 export const signUp = async (email: string, password: string) => {
-  const userCredential = await createUserWithEmailAndPassword(
-    auth,
-    email,
-    password
-  );
-  return userCredential.user;
+  const { data, error } = await supabase.auth.signUp({ email, password });
+  if (error) throw error;
+  // The public.profiles row is created by the handle_new_user trigger, so
+  // there is nothing to write here.
+  return data.user;
 };
 
 export const login = async (email: string, password: string) => {
-  const userCredential = await signInWithEmailAndPassword(
-    auth,
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
-    password
-  );
-  return userCredential.user;
+    password,
+  });
+  if (error) throw error;
+  return data.user;
 };
 
 export const logout = async () => {
-  await signOut(auth);
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
 };

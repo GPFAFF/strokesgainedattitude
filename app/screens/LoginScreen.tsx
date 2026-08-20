@@ -12,15 +12,9 @@ import useAuthForm from "../hooks/useAuthForm";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { useSnackbar } from "../context/SnackbarContext";
 import { colors } from "../theme";
-import { NavigationProp } from "@react-navigation/native";
 import HeaderBar from "../components/HeaderBar";
-import { RootStackParamList } from "../lib/types";
 
-const LoginScreen = ({
-  navigation,
-}: {
-  navigation: NavigationProp<RootStackParamList>;
-}) => {
+const LoginScreen = () => {
   const { email, password, setEmail, setPassword } = useAuthForm();
 
   const showSnackbar = useSnackbar();
@@ -28,7 +22,6 @@ const LoginScreen = ({
   const handleLogin = async () => {
     try {
       await login(email, password);
-      navigation.navigate("App");
     } catch (error: unknown) {
       if (error instanceof Error) {
         showSnackbar(

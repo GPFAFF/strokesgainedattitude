@@ -44,7 +44,6 @@ export default function AddCourseScreen() {
           tee_name: tees,
         },
       ],
-      searchIndex: name.toLowerCase(),
     });
 
     onSelect?.(course);

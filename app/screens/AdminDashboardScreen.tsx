@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { useAuth } from "../hooks/auth";
-import { useUserProfile } from "../hooks/useUserProfile";
+import { useUserProfile, useRoundCount } from "../hooks/useUserProfile";
 import { useMentalCategoryStats } from "../hooks/useMentalCategoryStats";
 import MentalScoreCarouselWithDetails from "../components/MentalScoreCarousel";
 import ScreenWrapper from "../components/ScreenWrapper";
@@ -13,19 +13,17 @@ import { RootStackParamList } from "../lib/types";
 export default function AdminDashboardScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const { firebaseUser, authLoading } = useAuth();
-  const { data: userProfile, isLoading: profileLoading } = useUserProfile(
-    firebaseUser?.uid
-  );
+  const { userId, authLoading } = useAuth();
+  const { isLoading: profileLoading } = useUserProfile(userId);
   const {
     data: scores = [],
     isLoading: scoresLoading,
     error,
-  } = useMentalCategoryStats(firebaseUser?.uid);
+  } = useMentalCategoryStats(userId);
 
   const loading = authLoading || profileLoading || scoresLoading;
 
-  const roundsCount = userProfile?.rounds?.length || 0;
+  const { data: roundsCount = 0 } = useRoundCount(userId);
 
   return (
     <ScreenWrapper loading={loading}>

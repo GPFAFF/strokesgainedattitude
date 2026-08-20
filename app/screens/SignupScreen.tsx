@@ -7,44 +7,26 @@ import {
   StyleSheet,
 } from "react-native";
 import { signUp } from "../services/authService";
-import { createUserDocument } from "../firebase/users";
 import Logo from "../components/logo";
 import useAuthForm from "../hooks/useAuthForm";
 import ScreenWrapper from "../components/ScreenWrapper";
 
-import { NavigationProp } from "@react-navigation/native";
 import { useSnackbar } from "../context/SnackbarContext";
-import { db } from "../firebase/config";
-import { doc, setDoc } from "firebase/firestore";
 import { colors } from "../theme";
 import HeaderBar from "../components/HeaderBar";
-import { RootStackParamList } from "../lib/types";
 
-export default function SignupScreen({
-  navigation,
-}: {
-  navigation: NavigationProp<RootStackParamList>;
-}) {
+export default function SignupScreen() {
   const { email, password, setEmail, setPassword } = useAuthForm();
 
   const showSnackbar = useSnackbar();
 
   const handleSignup = async () => {
     try {
-      const userCredential = await signUp(email, password);
-      const { uid } = userCredential;
-
-      await createUserDocument(uid, email);
-      await setDoc(
-        doc(db, "users", uid),
-        {
-          handicap: null,
-        },
-        { merge: true }
-      );
-
+      // The profiles row is created by the handle_new_user database trigger,
+      // and the root navigator swaps to the app tabs once a session exists —
+      // so there is nothing to write and nowhere to navigate here.
+      await signUp(email, password);
       showSnackbar("Account created!", "success");
-      navigation.navigate("App");
     } catch (error) {
       if (error instanceof Error) {
         showSnackbar(

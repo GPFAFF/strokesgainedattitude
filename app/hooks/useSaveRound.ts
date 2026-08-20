@@ -1,55 +1,40 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { User } from "firebase/auth";
-import {
-  collection,
-  addDoc,
-  serverTimestamp,
-  updateDoc,
-  arrayUnion,
-  doc,
-} from "firebase/firestore";
-import { db as firestore } from "../firebase/config";
+
+import { supabase } from "../lib/supabase";
 import concepts from "../data/mentalConcepts.json";
 import { Tee } from "../lib/types";
 
-interface MentalRoundScores {
-  [key: string]: number;
-}
+type Concept = { concept: string; category: string };
 
-interface CourseInfo {
+const CATEGORY_BY_CONCEPT: Record<string, string> = Object.fromEntries(
+  (concepts as Concept[]).map((c) => [c.concept, c.category])
+);
+
+export interface SaveRoundCourseInfo {
   courseId?: string;
   courseName?: string;
   courseCity?: string;
   courseState?: string;
+  /** The single tee box selected for this round. */
   tees: Tee;
 }
 
 type SaveRoundPayload = {
-  user: User;
-  scores: MentalRoundScores;
-  courseInfo?: CourseInfo;
+  userId: string;
+  scores: Record<string, number>;
+  courseInfo?: SaveRoundCourseInfo;
   roundScore?: number;
   putts?: number;
   fairwaysHit?: number;
   greensInRegulation?: number;
 };
 
-function computeHandicapDifferential(
-  score: number,
-  tee: Tee
-): number | undefined {
-  const rating = parseFloat(String(tee.course_rating));
-  const slope = parseFloat(String(tee.slope_rating));
-  if (isNaN(rating) || isNaN(slope) || slope === 0) return undefined;
-  return parseFloat(((score - rating) * 113 / slope).toFixed(1));
-}
-
 export const useSaveMentalRound = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({
-      user,
+      userId,
       scores,
       courseInfo,
       roundScore,
@@ -57,72 +42,61 @@ export const useSaveMentalRound = () => {
       fairwaysHit,
       greensInRegulation,
     }: SaveRoundPayload) => {
-      const categoryMap: { [key: string]: number[] } = {};
+      // handicap_differential is a generated column — the database derives it
+      // from round_score and the tee's rating/slope, so we never send it.
+      const { data: round, error: roundError } = await supabase
+        .from("rounds")
+        .insert({
+          user_id: userId,
+          course_id: courseInfo?.courseId ?? null,
+          course_name: courseInfo?.courseName ?? null,
+          course_city: courseInfo?.courseCity ?? null,
+          course_state: courseInfo?.courseState ?? null,
+          tee: courseInfo?.tees ?? null,
+          round_score: roundScore ?? null,
+          putts: putts ?? null,
+          fairways_hit: fairwaysHit ?? null,
+          greens_in_regulation: greensInRegulation ?? null,
+        })
+        .select("id")
+        .single();
 
-      for (const entry of concepts) {
-        const concept = entry?.concept;
-        const category = entry?.category;
-        if (concept && category && scores[concept] !== undefined) {
-          if (!categoryMap[category]) categoryMap[category] = [];
-          categoryMap[category].push(scores[concept]);
+      if (roundError) throw roundError;
+
+      const rows = Object.entries(scores)
+        // Drop anything not in the concept list rather than writing a row with
+        // no category, which would skew the stats views.
+        .filter(([concept]) => CATEGORY_BY_CONCEPT[concept])
+        .map(([concept, score]) => ({
+          round_id: round.id,
+          concept,
+          category: CATEGORY_BY_CONCEPT[concept],
+          score,
+        }));
+
+      if (rows.length) {
+        const { error: scoresError } = await supabase
+          .from("round_scores")
+          .insert(rows);
+
+        if (scoresError) {
+          // Don't leave a round with no ratings behind.
+          await supabase.from("rounds").delete().eq("id", round.id);
+          throw scoresError;
         }
       }
 
-      const categoryScores: { [key: string]: number } = {};
-      for (const [category, values] of Object.entries(categoryMap)) {
-        if (Array.isArray(values) && values.length > 0) {
-          const avg = values.reduce((a, b) => a + b, 0) / values.length;
-          categoryScores[category] = parseFloat(avg.toFixed(2));
-        }
-      }
-
-      const differential =
-        roundScore && courseInfo?.tees
-          ? computeHandicapDifferential(roundScore, courseInfo.tees)
-          : undefined;
-
-      const newRound = {
-        uid: user.uid,
-        createdAt: serverTimestamp(),
-        scores,
-        categoryScores,
-        ...(courseInfo?.courseId && { courseId: courseInfo.courseId }),
-        ...(courseInfo?.courseName && { courseName: courseInfo.courseName }),
-        ...(courseInfo?.courseCity && { courseCity: courseInfo.courseCity }),
-        ...(courseInfo?.courseState && { courseState: courseInfo.courseState }),
-        tees: courseInfo?.tees,
-        roundScore: roundScore ?? 0,
-        ...(differential !== undefined && {
-          handicapDifferential: differential,
-        }),
-        ...(putts !== undefined && { putts }),
-        ...(fairwaysHit !== undefined && { fairwaysHit }),
-        ...(greensInRegulation !== undefined && { greensInRegulation }),
-      };
-
-      const docRef = await addDoc(
-        collection(firestore, "mentalRounds"),
-        newRound
-      );
-
-      const userRef = doc(firestore, "users", user.uid);
-      await updateDoc(userRef, {
-        rounds: arrayUnion(docRef.id),
-      });
-
-      return docRef.id;
+      return round.id;
     },
 
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["user", variables.user.uid],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["mentalCategoryStats", variables.user.uid],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["mentalRounds", variables.user.uid],
-      });
+      for (const key of [
+        ["profile", variables.userId],
+        ["mentalRounds", variables.userId],
+        ["mentalCategoryStats", variables.userId],
+      ]) {
+        queryClient.invalidateQueries({ queryKey: key });
+      }
     },
   });
 };

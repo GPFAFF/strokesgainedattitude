@@ -28,13 +28,8 @@
       "favicon": "../app/assets/logo.png"
     },
     "extra": {
-      "firebaseApiKey": "AIzaSyAjwW0H-QdMBN60hj9bbKjZrcAaWmcZJEo",
-      "firebaseAuthDomain": "strokesgainedattitude.firebaseapp.com",
-      "firebaseProjectId": "strokesgainedattitude",
-      "firebaseStorageBucket": "strokesgainedattitude.firebasestorage.app",
-      "firebaseMessagingSenderId": "4070107318",
-      "firebaseAppId": "1:4070107318:web:4322bda985c5ff857a9e17",
-      "firebaseMeasurementId": "G-LHDVFWDK3X"
+      "supabaseUrl": "https://YOUR_PROJECT_REF.supabase.co",
+      "supabaseAnonKey": "YOUR_SUPABASE_ANON_KEY"
     }
   }
 }

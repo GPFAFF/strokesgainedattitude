@@ -19,8 +19,8 @@ const screenWidth = Dimensions.get("window").width;
 const CARD_WIDTH = screenWidth - 32;
 
 export default function RoundHistoryScreen() {
-  const { firebaseUser: user } = useAuth();
-  const { data = [], isLoading: roundsLoading } = useMentalRounds(user);
+  const { userId } = useAuth();
+  const { data = [], isLoading: roundsLoading } = useMentalRounds(userId);
 
   const { activeIndex, handleScroll } = usePaginationDots(
     CARD_WIDTH,
@@ -28,7 +28,7 @@ export default function RoundHistoryScreen() {
     data.length
   );
 
-  if (!user) {
+  if (!userId) {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>Please log in to view history</Text>
@@ -89,7 +89,7 @@ export default function RoundHistoryScreen() {
           {data.map((round, i) => {
             const groupedScores = groupByCategory(round.scores || {});
             const roundDate =
-              round.createdAt?.toDate()?.toLocaleDateString() || "Unknown";
+              (round.playedAt ? new Date(round.playedAt).toLocaleDateString() : undefined) || "Unknown";
 
             return (
               <View key={round.id} style={styles.card}>

@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { getAuth, updateProfile } from "firebase/auth";
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
-import { db } from "../firebase/config";
+import { useQueryClient } from "@tanstack/react-query";
+
+import { supabase } from "../lib/supabase";
 import { useSnackbar } from "../context/SnackbarContext";
 
 export function useUpdateUserProfile() {
   const [updating, setUpdating] = useState(false);
   const showSnackbar = useSnackbar();
+  const queryClient = useQueryClient();
 
   const handleUpdateProfile = async ({
     displayName,
@@ -15,37 +16,42 @@ export function useUpdateUserProfile() {
     displayName: string;
     handicap: string;
   }) => {
-    const auth = getAuth();
-    const authUser = auth.currentUser;
-    if (!authUser) return;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
 
     setUpdating(true);
     try {
-      await updateProfile(authUser, { displayName });
+      const parsedHandicap = handicap.trim() === "" ? null : Number(handicap);
+      if (parsedHandicap !== null && Number.isNaN(parsedHandicap)) {
+        showSnackbar("Handicap must be a number", "error");
+        return;
+      }
 
-      await setDoc(
-        doc(db, "users", authUser.uid),
-        {
-          handicap: handicap ? Number(handicap) : null,
-          lastUpdated: serverTimestamp(),
-        },
-        { merge: true }
-      );
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          display_name: displayName,
+          handicap: parsedHandicap,
+          profile_complete: true,
+        })
+        .eq("id", user.id);
 
+      if (error) throw error;
+
+      // Keep the auth user's metadata in step so it is available on the session.
+      await supabase.auth.updateUser({ data: { display_name: displayName } });
+
+      queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
       showSnackbar("Profile updated successfully", "success");
     } catch (err) {
-      if (err instanceof Error) {
-        showSnackbar(`Error updating profile: ${err.message}`, "error");
-      } else {
-        showSnackbar("An error occurred while updating the profile.", "error");
-      }
+      const message = err instanceof Error ? err.message : "Unknown error";
+      showSnackbar(`Error updating profile: ${message}`, "error");
     } finally {
       setUpdating(false);
     }
   };
 
-  return {
-    handleUpdateProfile,
-    updating,
-  };
+  return { handleUpdateProfile, updating };
 }

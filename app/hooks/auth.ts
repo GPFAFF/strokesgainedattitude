@@ -1,19 +1,40 @@
 import { useEffect, useState } from "react";
-import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
-import { auth } from "../firebase/config";
+import type { Session, User } from "@supabase/supabase-js";
 
+import { supabase } from "../lib/supabase";
+
+/**
+ * Current auth state. `authLoading` stays true until the persisted session has
+ * been read back from storage, so callers can tell "not signed in" apart from
+ * "we don't know yet" — the distinction the root navigator gates on.
+ */
 export function useAuth() {
-  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setFirebaseUser(user);
+    let active = true;
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!active) return;
+      setSession(data.session);
       setAuthLoading(false);
     });
 
-    return unsubscribe;
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession);
+      setAuthLoading(false);
+    });
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
-  return { firebaseUser, authLoading };
+  const user: User | null = session?.user ?? null;
+
+  return { session, user, userId: user?.id, authLoading };
 }
