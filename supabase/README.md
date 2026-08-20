@@ -41,12 +41,25 @@ In `app/app.json`, replace the placeholders under `expo.extra`:
 The anon key is safe to ship — it only grants what RLS allows. The **service
 role** key must never appear in the app.
 
-## 5. Email confirmation
+## 5. Auth settings
 
-By default Supabase requires email confirmation before a session is issued,
-which means signup won't log the user straight in. For a smoother beta, turn
-off "Confirm email" under Authentication → Providers → Email, or add a
-"check your inbox" state to the signup screen.
+**Redirect URLs.** Password reset and email confirmation open the app via its
+URL scheme. Under Authentication → URL Configuration, add these to the allowed
+redirect list, or the links will bounce:
+
+```
+strokesgainedattitude://auth/reset
+strokesgainedattitude://auth/confirm
+```
+
+For Expo Go during development also add `exp://` — `Linking.createURL()`
+returns an `exp://…` URL there rather than the custom scheme.
+
+**Email confirmation.** On by default, which means signup issues no session
+until the user clicks the emailed link. The signup screen handles this (it
+shows a "check your inbox" state), so either setting works. Turning off
+"Confirm email" under Authentication → Providers → Email makes beta onboarding
+one step shorter; leaving it on is the safer choice for a public launch.
 
 ---
 

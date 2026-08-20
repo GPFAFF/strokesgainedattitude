@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -10,47 +10,64 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
 
-import Logo from "../components/logo";
 import AuthField from "../components/AuthField";
 import ScreenWrapper from "../components/ScreenWrapper";
 import HeaderBar from "../components/HeaderBar";
 import useAuthForm from "../hooks/useAuthForm";
-import { login } from "../services/authService";
+import { requestPasswordReset } from "../services/authService";
 import { useSnackbar } from "../context/SnackbarContext";
 import { authErrorMessage } from "../lib/authErrors";
 import { colors, spacing, typography } from "../theme";
 import { RootStackParamList } from "../lib/types";
 
-const LoginScreen = () => {
+export default function ForgotPasswordScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const showSnackbar = useSnackbar();
-  const {
-    email,
-    password,
-    setEmail,
-    setPassword,
-    errors,
-    validate,
-    submitting,
-    setSubmitting,
-  } = useAuthForm();
+  const [sent, setSent] = useState(false);
+  const { email, setEmail, errors, validate, submitting, setSubmitting } =
+    useAuthForm();
 
-  const handleLogin = async () => {
-    if (submitting || !validate()) return;
+  const handleSend = async () => {
+    if (submitting || !validate({ requirePassword: false })) return;
 
     setSubmitting(true);
     try {
-      // On success a session appears and the root navigator swaps to the app
-      // tabs, so there is nothing to navigate to here.
-      await login(email, password);
-    } catch (error: unknown) {
+      await requestPasswordReset(email);
+      // Always report success. Saying "no account with that email" would let
+      // anyone probe which addresses are registered.
+      setSent(true);
+    } catch (error) {
       showSnackbar(authErrorMessage(error), "error");
     } finally {
       setSubmitting(false);
     }
   };
+
+  if (sent) {
+    return (
+      <ScreenWrapper>
+        <HeaderBar showIcon={false} />
+        <View style={styles.center}>
+          <Ionicons name="mail-outline" size={56} color={colors.primary} />
+          <Text style={styles.title}>Check your inbox</Text>
+          <Text style={styles.body}>
+            If an account exists for{" "}
+            <Text style={styles.linkStrong}>{email.trim()}</Text>, we&apos;ve
+            sent a link to reset your password.
+          </Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate("Login")}
+          >
+            <Text style={styles.buttonText}>Back to log in</Text>
+          </TouchableOpacity>
+        </View>
+      </ScreenWrapper>
+    );
+  }
 
   return (
     <ScreenWrapper>
@@ -60,8 +77,10 @@ const LoginScreen = () => {
         style={styles.flex}
       >
         <View style={styles.container}>
-          <Logo />
-          <Text style={styles.title}>Welcome back</Text>
+          <Text style={styles.title}>Reset your password</Text>
+          <Text style={styles.body}>
+            Enter the email you signed up with and we&apos;ll send you a link.
+          </Text>
 
           <AuthField
             label="Email"
@@ -73,66 +92,55 @@ const LoginScreen = () => {
             autoCorrect={false}
             autoComplete="email"
             keyboardType="email-address"
-            returnKeyType="next"
-          />
-
-          <AuthField
-            label="Password"
-            placeholder="Your password"
-            value={password}
-            onChangeText={setPassword}
-            error={errors.password}
-            secureTextEntry
-            autoCapitalize="none"
-            autoComplete="current-password"
             returnKeyType="go"
-            onSubmitEditing={handleLogin}
+            onSubmitEditing={handleSend}
           />
 
           <TouchableOpacity
             style={[styles.button, submitting && styles.buttonDisabled]}
-            onPress={handleLogin}
+            onPress={handleSend}
             disabled={submitting}
           >
             {submitting ? (
               <ActivityIndicator color={colors.onPrimary} />
             ) : (
-              <Text style={styles.buttonText}>Log in</Text>
+              <Text style={styles.buttonText}>Send reset link</Text>
             )}
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => navigation.navigate("ForgotPassword")}
+            onPress={() => navigation.goBack()}
             style={styles.linkButton}
           >
-            <Text style={styles.link}>Forgot your password?</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Signup")}
-            style={styles.linkButton}
-          >
-            <Text style={styles.link}>
-              Don&apos;t have an account?{" "}
-              <Text style={styles.linkStrong}>Sign up</Text>
-            </Text>
+            <Text style={styles.link}>Back to log in</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </ScreenWrapper>
   );
-};
-
-export default LoginScreen;
+}
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   container: { flex: 1, justifyContent: "center" },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: spacing.lg,
+    gap: spacing.sm,
+  },
   title: {
     ...typography.h1,
     color: colors.primaryDark,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.sm,
     textAlign: "center",
+  },
+  body: {
+    ...typography.body,
+    color: colors.textSecondary,
+    textAlign: "center",
+    marginBottom: spacing.lg,
   },
   button: {
     backgroundColor: colors.primaryDark,
@@ -142,6 +150,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     minHeight: 52,
     justifyContent: "center",
+    alignSelf: "stretch",
   },
   buttonDisabled: { opacity: 0.6 },
   buttonText: { ...typography.bodyStrong, color: colors.onPrimary },

@@ -11,6 +11,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import OnboardingScreen from "./screens/OnboardingScreen";
 import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
+import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
+import ResetPasswordScreen from "./screens/ResetPasswordScreen";
 import SelectCourseScreen from "./screens/SelectCourseScreen";
 import AddCourseScreen from "./screens/AddCourseScreen";
 
@@ -18,6 +20,7 @@ import BottomTabs from "./navigation/tabs";
 import { SnackbarProvider } from "./context/SnackbarContext";
 import { queryClient } from "./lib/queryClient";
 import { useAuth } from "./hooks/auth";
+import { usePasswordRecovery } from "./hooks/usePasswordRecovery";
 import { colors } from "./theme";
 import { RootStackParamList } from "./lib/types";
 
@@ -30,6 +33,10 @@ function AuthStackScreen() {
       <AuthStack.Screen name="Onboarding" component={OnboardingScreen} />
       <AuthStack.Screen name="Login" component={LoginScreen} />
       <AuthStack.Screen name="Signup" component={SignupScreen} />
+      <AuthStack.Screen
+        name="ForgotPassword"
+        component={ForgotPasswordScreen}
+      />
     </AuthStack.Navigator>
   );
 }
@@ -42,6 +49,7 @@ function AuthStackScreen() {
  */
 function RootNavigator() {
   const { session, authLoading } = useAuth();
+  const { recovering, finishRecovery } = usePasswordRecovery();
 
   if (authLoading) {
     return (
@@ -56,6 +64,13 @@ function RootNavigator() {
         <ActivityIndicator size="large" color={colors.primaryDark} />
       </View>
     );
+  }
+
+  // A recovery deep link produces a real session, so this has to be checked
+  // before the session branch — otherwise the user lands in the app instead of
+  // on the screen that lets them set a new password.
+  if (recovering) {
+    return <ResetPasswordScreen onDone={finishRecovery} />;
   }
 
   return (

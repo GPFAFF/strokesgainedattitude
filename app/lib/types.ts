@@ -69,6 +69,8 @@ type RootStackParamList = {
   Onboarding: undefined;
   Login: undefined;
   Signup: undefined;
+  ForgotPassword: undefined;
+  ResetPassword: undefined;
 
   // App tabs
   App: undefined;
