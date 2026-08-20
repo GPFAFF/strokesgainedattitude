@@ -65,15 +65,20 @@ type UserProfile = {
 };
 
 type RootStackParamList = {
+  // Auth stack
+  Auth: undefined;
   Onboarding: undefined;
   Login: undefined;
   Signup: undefined;
-  MentalTracker: undefined;
-  DataVisualization: undefined;
-  RoundHistory: undefined;
-  ChartScreen: undefined;
+
+  // App tabs
+  App: undefined;
+  Home: undefined;
+  Log: undefined;
   Insights: undefined;
-  AdminDashboard: { screen: string } | undefined;
+  Profile: undefined;
+
+  // Root modals
   SelectCourse: {
     onSelect: (payload: { course: Course; tee: Tee }) => void;
     onAddCourse?: (query: string) => void;

@@ -44,7 +44,7 @@ export default function SignupScreen({
       );
 
       showSnackbar("Account created!", "success");
-      navigation.navigate("AdminDashboard");
+      navigation.navigate("App");
     } catch (error) {
       if (error instanceof Error) {
         showSnackbar(

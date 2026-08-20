@@ -57,7 +57,7 @@ export default function AdminDashboardScreen() {
         <TouchableOpacity
           style={styles.button}
           onPress={() =>
-            navigation.navigate("AdminDashboard", { screen: "Track" })
+            navigation.navigate("Log")
           }
         >
           <Text style={styles.buttonText}>Add Round</Text>

@@ -1,109 +1,65 @@
 import "react-native-reanimated";
 
 import React from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { QueryClientProvider } from "@tanstack/react-query";
 
 import OnboardingScreen from "./screens/OnboardingScreen";
 import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
-import MentalTrackerScreen from "./screens/MentalTrackerScreen";
-import DataVisualizationScreen from "./screens/DataVisualizationScreen";
-import RoundHistoryScreen from "./screens/RoundHistoryScreen";
-import ChartScreen from "./screens/ChartScreen";
+import SelectCourseScreen from "./screens/SelectCourseScreen";
+import AddCourseScreen from "./screens/AddCourseScreen";
 
 import BottomTabs from "./navigation/tabs";
 import { SnackbarProvider } from "./context/SnackbarContext";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
-import AddCourseScreen from "./screens/AddCourseScreen";
-import { colors } from "./theme";
-import SelectCourseScreen from "./screens/SelectCourseScreen";
 import { RootStackParamList } from "./lib/types";
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const RootStack = createNativeStackNavigator<RootStackParamList>();
+const AuthStack = createNativeStackNavigator();
 
-const MainStack = createNativeStackNavigator();
-const RootStack = createNativeStackNavigator();
-
-function MainStackScreen() {
+function AuthStackScreen() {
   return (
-    <MainStack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: colors.warmTaupe,
-        },
-        headerTintColor: colors.charcoal,
-        headerTitleStyle: {
-          fontWeight: "bold",
-        },
-        headerTitleAlign: "center",
-      }}
-      initialRouteName="Onboarding"
-    >
-      <MainStack.Screen
-        name="Onboarding"
-        component={OnboardingScreen}
-        options={{ headerShown: false }}
-      />
-      <MainStack.Screen
-        name="Signup"
-        component={SignupScreen}
-        options={{ headerShown: false }}
-      />
-      <MainStack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{ headerShown: false }}
-      />
-      <MainStack.Screen name="MentalTracker" component={MentalTrackerScreen} />
-      <MainStack.Screen
-        name="DataVisualization"
-        component={DataVisualizationScreen}
-      />
-      <MainStack.Screen name="RoundHistory" component={RoundHistoryScreen} />
-      <MainStack.Screen name="ChartScreen" component={ChartScreen} />
-      <MainStack.Screen
-        name="AdminDashboard"
-        component={BottomTabs}
-        options={{ headerShown: false }}
-      />
-    </MainStack.Navigator>
+    <AuthStack.Navigator screenOptions={{ headerShown: false }}>
+      <AuthStack.Screen name="Onboarding" component={OnboardingScreen} />
+      <AuthStack.Screen name="Login" component={LoginScreen} />
+      <AuthStack.Screen name="Signup" component={SignupScreen} />
+    </AuthStack.Navigator>
   );
 }
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
-        <SnackbarProvider>
-          <NavigationContainer>
-            <RootStack.Navigator screenOptions={{ headerShown: false }}>
-              {/* Main app */}
-              <RootStack.Screen name="Main" component={MainStackScreen} />
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <SnackbarProvider>
+            <NavigationContainer>
+              <RootStack.Navigator screenOptions={{ headerShown: false }}>
+                <RootStack.Screen name="Auth" component={AuthStackScreen} />
+                <RootStack.Screen name="App" component={BottomTabs} />
 
-              {/* Modal screens */}
-              <RootStack.Screen
-                name="SelectCourse"
-                component={SelectCourseScreen}
-                options={{
-                  presentation: "modal",
-                  animation: "slide_from_bottom",
-                }}
-              />
-              <Stack.Screen
-                name="AddCourse"
-                component={AddCourseScreen}
-                options={{
-                  presentation: "modal",
-                  animation: "slide_from_bottom",
-                }}
-              />
-            </RootStack.Navigator>
-          </NavigationContainer>
-        </SnackbarProvider>
-      </QueryClientProvider>
-    </SafeAreaProvider>
+                {/* Modals presented over whichever stack is active */}
+                <RootStack.Group screenOptions={{ presentation: "modal" }}>
+                  <RootStack.Screen
+                    name="SelectCourse"
+                    component={SelectCourseScreen}
+                    options={{ animation: "slide_from_bottom" }}
+                  />
+                  <RootStack.Screen
+                    name="AddCourse"
+                    component={AddCourseScreen}
+                    options={{ animation: "slide_from_bottom" }}
+                  />
+                </RootStack.Group>
+              </RootStack.Navigator>
+            </NavigationContainer>
+          </SnackbarProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
