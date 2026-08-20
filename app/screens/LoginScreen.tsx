@@ -28,7 +28,7 @@ const LoginScreen = ({
   const handleLogin = async () => {
     try {
       await login(email, password);
-      navigation.navigate("AdminDashboard");
+      navigation.navigate("App");
     } catch (error: unknown) {
       if (error instanceof Error) {
         showSnackbar(
