@@ -8,7 +8,6 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { getAuth, signOut, deleteUser } from "firebase/auth";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { useSnackbar } from "../context/SnackbarContext";
 
@@ -17,18 +16,19 @@ import HeaderBar from "../components/HeaderBar";
 import { useUserProfile } from "../hooks/useUserProfile";
 import { useUpdateUserProfile } from "../hooks/useUpdateUser";
 import useUserProfileForm from "../hooks/useUserProfileForm";
+import { logout } from "../services/authService";
+import { useDeleteAccount } from "../hooks/useDeleteAccount";
 
-const ProfileScreen = ({ navigation }: any) => {
-  const { firebaseUser, authLoading } = useAuth();
-  const { data: userProfile, isLoading: profileLoading } = useUserProfile(
-    firebaseUser?.uid
-  );
+const ProfileScreen = () => {
+  const { user: authUser, userId, authLoading } = useAuth();
+  const { data: userProfile, isLoading: profileLoading } =
+    useUserProfile(userId);
 
   const user =
-    firebaseUser && userProfile ? { ...firebaseUser, ...userProfile } : null;
+    authUser && userProfile ? { ...authUser, ...userProfile } : null;
   const loading = authLoading || profileLoading;
 
-  const auth = getAuth();
+  const { deleteAccount, deleting } = useDeleteAccount();
 
   const { displayName, setDisplayName, email, handicap, setHandicap } =
     useUserProfileForm(user);
@@ -41,9 +41,14 @@ const ProfileScreen = ({ navigation }: any) => {
     await handleUpdateProfile({ displayName, handicap });
   };
 
+  // Signing out clears the session; the root navigator swaps back to the auth
+  // stack on its own, so there is no screen to navigate to here.
   const handleLogout = async () => {
-    await signOut(auth);
-    navigation.replace("Login");
+    try {
+      await logout();
+    } catch (err) {
+      showSnackbar((err as Error).message, "error");
+    }
   };
 
   const handleDeleteAccount = async () => {
@@ -55,19 +60,7 @@ const ProfileScreen = ({ navigation }: any) => {
         {
           text: "Delete",
           style: "destructive",
-          onPress: async () => {
-            try {
-              if (user) {
-                await deleteUser(user);
-                showSnackbar("Your account has been deleted.", "success");
-                navigation.replace("Signup");
-              } else {
-                showSnackbar("User not logged in.", "error");
-              }
-            } catch (err) {
-              showSnackbar((err as Error).message, "error");
-            }
-          },
+          onPress: deleteAccount,
         },
       ],
       { cancelable: true }
@@ -122,10 +115,13 @@ const ProfileScreen = ({ navigation }: any) => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.deleteButton}
+          style={[styles.deleteButton, deleting && styles.buttonDisabled]}
           onPress={handleDeleteAccount}
+          disabled={deleting}
         >
-          <Text style={styles.deleteText}>Delete Account</Text>
+          <Text style={styles.deleteText}>
+            {deleting ? "Deleting…" : "Delete Account"}
+          </Text>
         </TouchableOpacity>
       </View>
     </ScreenWrapper>

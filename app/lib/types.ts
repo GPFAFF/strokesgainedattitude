@@ -1,7 +1,5 @@
-import type { Timestamp } from "firebase/firestore";
-
-// A single tee box as returned by the GolfCourse API / stored in Firestore.
-// The upstream API uses string ratings, so we keep them permissive.
+// A single tee box as returned by the GolfCourse API and stored on the round.
+// The upstream API sends ratings as strings, so we keep them permissive.
 type Tee = {
   tee_name: string;
   course_rating?: number | string;
@@ -31,11 +29,12 @@ type Course = {
   isCustom?: boolean;
 };
 
-// A saved mental-tracking round (Firestore `mentalRounds` document).
+// A saved round, flattened from public.rounds + its public.round_scores rows.
 type MentalRound = {
   id: string;
   uid: string;
-  createdAt?: Timestamp;
+  /** ISO timestamp from public.rounds.played_at. */
+  playedAt?: string;
   scores: Record<string, number>;
   categoryScores?: Record<string, number>;
   courseId?: string;
@@ -45,8 +44,8 @@ type MentalRound = {
   // Stored as the single selected tee box for the round.
   tees?: Tee;
   roundScore?: number;
-  // (Score - Course Rating) × 113 / Slope — normalises performance across
-  // courses. Lower = better (under expected). Stored at save time.
+  // (Score - Course Rating) × 113 / Slope. Lower = better. Computed by the
+  // database as a generated column, so it can never drift from its inputs.
   handicapDifferential?: number;
   // Optional shot-category stats for future SG correlations.
   putts?: number;
@@ -54,14 +53,14 @@ type MentalRound = {
   greensInRegulation?: number;
 };
 
-// Firestore `users/{uid}` document.
+// public.profiles row.
 type UserProfile = {
+  id: string;
   email?: string;
-  createdAt?: Timestamp;
-  profileComplete?: boolean;
-  rounds?: string[];
+  displayName?: string;
   handicap?: number | null;
-  [key: string]: unknown;
+  profileComplete?: boolean;
+  createdAt?: string;
 };
 
 type RootStackParamList = {
@@ -70,6 +69,8 @@ type RootStackParamList = {
   Onboarding: undefined;
   Login: undefined;
   Signup: undefined;
+  ForgotPassword: undefined;
+  ResetPassword: undefined;
 
   // App tabs
   App: undefined;

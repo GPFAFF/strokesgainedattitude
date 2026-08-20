@@ -69,7 +69,7 @@ const conceptsByCategory = trackable.reduce<Record<string, string[]>>(
 export default function QuickLogScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { firebaseUser: user, authLoading } = useAuth();
+  const { userId, authLoading } = useAuth();
   const showSnackbar = useSnackbar();
   const { mutateAsync: saveRound, isPending } = useSaveMentalRound();
 
@@ -139,10 +139,10 @@ export default function QuickLogScreen() {
   };
 
   const handleSave = async () => {
-    if (!user) return;
+    if (!userId) return;
     try {
       await saveRound({
-        user,
+        userId,
         scores,
         // Course is optional — only send courseInfo when a tee was picked.
         courseInfo:
@@ -177,7 +177,7 @@ export default function QuickLogScreen() {
     );
   }
 
-  if (!user) {
+  if (!userId) {
     return (
       <ScreenWrapper>
         <View style={styles.center}>
