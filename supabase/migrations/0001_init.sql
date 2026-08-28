@@ -319,3 +319,32 @@ create policy "round_scores: delete own"
     select 1 from public.rounds r
     where r.id = round_scores.round_id and r.user_id = auth.uid()
   ));
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Self-service account deletion
+--
+-- Supabase has no client-side API for deleting your own auth user — removing a
+-- row from auth.users needs the service role, which must never reach the app.
+-- SECURITY DEFINER lets this run with the owner's rights while the WHERE clause
+-- pins it to the caller, so a user can only ever delete themselves. If
+-- auth.uid() is NULL (an unauthenticated or service-role call) the predicate is
+-- NULL for every row and nothing is deleted.
+--
+-- profiles, rounds, round_scores and the created_by link on custom courses all
+-- cascade from auth.users, so this one delete removes the account outright.
+-- App stores require in-app account deletion, so this is not optional.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+create or replace function public.delete_current_user()
+returns void
+language sql
+security definer
+set search_path = ''
+as $$
+  delete from auth.users where id = auth.uid();
+$$;
+
+-- Deny by default, then grant only to signed-in users: a SECURITY DEFINER
+-- function is executable by PUBLIC unless revoked.
+revoke all on function public.delete_current_user() from public, anon;
+grant execute on function public.delete_current_user() to authenticated;
