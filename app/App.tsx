@@ -14,7 +14,6 @@ import SignupScreen from "./screens/SignupScreen";
 import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
 import ResetPasswordScreen from "./screens/ResetPasswordScreen";
 import SelectCourseScreen from "./screens/SelectCourseScreen";
-import AddCourseScreen from "./screens/AddCourseScreen";
 
 import BottomTabs from "./navigation/tabs";
 import { SnackbarProvider } from "./context/SnackbarContext";
@@ -82,11 +81,6 @@ function RootNavigator() {
             <RootStack.Screen
               name="SelectCourse"
               component={SelectCourseScreen}
-              options={{ animation: "slide_from_bottom" }}
-            />
-            <RootStack.Screen
-              name="AddCourse"
-              component={AddCourseScreen}
               options={{ animation: "slide_from_bottom" }}
             />
           </RootStack.Group>

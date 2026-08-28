@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { View, StyleSheet, Animated, Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { colors, spacing } from "../theme";
 
 const { width } = Dimensions.get("window");
 
@@ -51,33 +52,33 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    backgroundColor: "#E1E9EE",
+    padding: spacing.md,
+    backgroundColor: colors.surfaceAlt,
     borderRadius: 12,
-    marginBottom: 16,
+    marginBottom: spacing.md,
     overflow: "hidden",
   },
   avatar: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#CBD2D9",
+    backgroundColor: colors.border,
   },
   textContainer: {
-    marginLeft: 16,
+    marginLeft: spacing.md,
     flex: 1,
   },
   lineShort: {
     height: 16,
     width: "50%",
-    backgroundColor: "#CBD2D9",
+    backgroundColor: colors.border,
     borderRadius: 8,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   lineLong: {
     height: 16,
     width: "80%",
-    backgroundColor: "#CBD2D9",
+    backgroundColor: colors.border,
     borderRadius: 8,
   },
 });

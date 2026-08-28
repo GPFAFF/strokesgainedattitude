@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import { useAuth } from "../hooks/auth";
 import { useMentalRounds } from "../hooks/useMentalRounds";
 import ScreenWrapper from "../components/ScreenWrapper";
 import HeaderBar from "../components/HeaderBar";
+import { useSnackbar } from "../context/SnackbarContext";
 import { colors, spacing } from "../theme";
 import { MentalRound } from "../lib/types";
 const MIN_ROUNDS_FOR_INSIGHT = 3;
@@ -61,7 +62,7 @@ function StatCard({
 }) {
   return (
     <View
-      style={[styles.statCard, highlight && { borderColor: colors.darkGreen, borderWidth: 2 }]}
+      style={[styles.statCard, highlight && { borderColor: colors.primaryDark, borderWidth: 2 }]}
     >
       <Text style={styles.statValue}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
@@ -81,7 +82,7 @@ function ScoreBar({
 }) {
   const pct = Math.min(score / max, 1);
   const color =
-    score >= 4 ? colors.turfGreen : score >= 3 ? colors.bunkerSand : colors.red;
+    score >= 4 ? colors.primary : score >= 3 ? colors.sand : colors.danger;
 
   return (
     <View style={styles.barRow}>
@@ -128,7 +129,7 @@ function DotPlot({
                 styles.dot,
                 {
                   left: `${pos * 88}%`,
-                  backgroundColor: isGood ? colors.turfGreen : colors.coolGray,
+                  backgroundColor: isGood ? colors.primary : colors.textMuted,
                 },
               ]}
             >
@@ -153,7 +154,12 @@ function DotPlot({
 
 export default function InsightScreen() {
   const { userId } = useAuth();
-  const { data: rounds = [], isLoading } = useMentalRounds(userId);
+  const { data: rounds = [], isLoading, error } = useMentalRounds(userId);
+  const showSnackbar = useSnackbar();
+
+  useEffect(() => {
+    if (error) showSnackbar("Failed to load round history", "error");
+  }, [error, showSnackbar]);
 
   const roundsWithDiff = useMemo(
     () => rounds.filter((r) => r.handicapDifferential !== undefined),
@@ -217,7 +223,7 @@ export default function InsightScreen() {
     return (
       <ScreenWrapper>
         <View style={styles.center}>
-          <ActivityIndicator size="large" color={colors.darkGreen} />
+          <ActivityIndicator size="large" color={colors.primaryDark} />
         </View>
       </ScreenWrapper>
     );
@@ -416,26 +422,26 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: colors.charcoal,
+    color: colors.textPrimary,
     marginBottom: spacing.sm,
     textAlign: "center",
   },
   emptyText: {
     fontSize: 16,
-    color: colors.duskGray,
+    color: colors.textSecondary,
     textAlign: "center",
     marginBottom: spacing.sm,
   },
   emptyHint: {
     fontSize: 14,
-    color: colors.coolGray,
+    color: colors.textMuted,
     textAlign: "center",
     fontStyle: "italic",
   },
   sectionTitle: {
     fontSize: 13,
     fontWeight: "700",
-    color: colors.duskGray,
+    color: colors.textSecondary,
     textTransform: "uppercase",
     letterSpacing: 1,
     marginBottom: spacing.sm,
@@ -449,7 +455,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: colors.whiteSmoke,
+    backgroundColor: colors.surface,
     borderRadius: 10,
     padding: spacing.sm,
     alignItems: "center",
@@ -457,21 +463,21 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 22,
     fontWeight: "700",
-    color: colors.darkGreen,
+    color: colors.primaryDark,
   },
   statLabel: {
     fontSize: 11,
-    color: colors.duskGray,
+    color: colors.textSecondary,
     textAlign: "center",
-    marginTop: 2,
+    marginTop: spacing.xs,
   },
   statSub: {
     fontSize: 10,
-    color: colors.coolGray,
+    color: colors.textMuted,
     textAlign: "center",
   },
   insightCard: {
-    backgroundColor: colors.darkGreen,
+    backgroundColor: colors.primaryDark,
     borderRadius: 12,
     padding: spacing.md,
     marginBottom: spacing.sm,
@@ -479,15 +485,15 @@ const styles = StyleSheet.create({
   insightHeadline: {
     fontSize: 16,
     fontWeight: "700",
-    color: colors.white,
+    color: colors.onPrimary,
     marginBottom: spacing.xs,
   },
   insightSub: {
     fontSize: 13,
-    color: colors.oliveLeaf,
+    color: colors.primary,
   },
   bold: { fontWeight: "700" },
-  dimText: { color: colors.coolGray },
+  dimText: { color: colors.textMuted },
   barRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -497,12 +503,12 @@ const styles = StyleSheet.create({
   barLabel: {
     width: 90,
     fontSize: 12,
-    color: colors.charcoal,
+    color: colors.textPrimary,
   },
   barTrack: {
     flex: 1,
     height: 8,
-    backgroundColor: colors.mistGray,
+    backgroundColor: colors.border,
     borderRadius: 4,
     overflow: "hidden",
   },
@@ -510,21 +516,21 @@ const styles = StyleSheet.create({
   barValue: {
     width: 28,
     fontSize: 12,
-    color: colors.duskGray,
+    color: colors.textSecondary,
     textAlign: "right",
   },
   dotPlot: { marginBottom: spacing.sm },
   dotPlotLabel: {
     fontSize: 12,
-    color: colors.duskGray,
+    color: colors.textSecondary,
     marginBottom: spacing.xs,
   },
   dotTrack: {
     height: 28,
-    backgroundColor: colors.lightGray,
+    backgroundColor: colors.surfaceAlt,
     borderRadius: 14,
     position: "relative",
-    marginHorizontal: 4,
+    marginHorizontal: spacing.xs,
   },
   dot: {
     position: "absolute",
@@ -535,35 +541,35 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  dotIndex: { fontSize: 9, color: colors.white, fontWeight: "700" },
+  dotIndex: { fontSize: 9, color: colors.onPrimary, fontWeight: "700" },
   dotAxisRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 2,
+    marginTop: spacing.xs,
   },
-  dotAxisText: { fontSize: 10, color: colors.coolGray },
+  dotAxisText: { fontSize: 10, color: colors.textMuted },
   roundRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.sm,
     paddingVertical: spacing.sm,
     borderBottomWidth: 1,
-    borderColor: colors.mistGray,
+    borderColor: colors.border,
   },
   roundIndex: {
     fontSize: 18,
     fontWeight: "700",
-    color: colors.darkGreen,
+    color: colors.primaryDark,
     width: 32,
   },
   roundCourse: {
     fontSize: 14,
     fontWeight: "600",
-    color: colors.charcoal,
+    color: colors.textPrimary,
   },
   roundMeta: {
     fontSize: 12,
-    color: colors.duskGray,
-    marginTop: 2,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
   },
 });

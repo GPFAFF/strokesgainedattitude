@@ -17,7 +17,7 @@ import PaginationDots from "./PaginationDots";
 
 import { Ionicons } from "@expo/vector-icons";
 
-import { colors } from "../theme";
+import { colors, spacing } from "../theme";
 import { LineChart } from "react-native-gifted-charts";
 
 if (
@@ -63,8 +63,8 @@ const EmptyOverlay = ({
       <Ionicons
         name={icon}
         size={48}
-        color={colors.white}
-        style={{ marginBottom: 12 }}
+        color={colors.onPrimary}
+        style={{ marginBottom: spacing.md }}
       />
       <Text style={styles.emptyText}>{message}</Text>
     </Animated.View>
@@ -140,10 +140,10 @@ const MentalScoreScrollPager = ({ scores }: Props) => {
                         style={{
                           width: 12,
                           height: 12,
-                          backgroundColor: "#1B4332",
+                          backgroundColor: colors.primaryDark,
                           borderRadius: 6,
                           borderWidth: 2,
-                          borderColor: "#74C69D",
+                          borderColor: colors.primary,
                         }}
                       />
                     )
@@ -153,10 +153,10 @@ const MentalScoreScrollPager = ({ scores }: Props) => {
             hideDataPoints={false}
             // dataPointsColor="#74C69D"
             dataPointsRadius={4}
-            focusedDataPointColor="#1B4332"
+            focusedDataPointColor={colors.primaryDark}
             // focusedDataPointRadius={6}
-            startFillColor="#74C69D"
-            endFillColor="#D8F3DC"
+            startFillColor={colors.primary}
+            endFillColor={colors.surfaceAlt}
             isAnimated
             noOfSections={5}
             startOpacity={0.6}
@@ -248,12 +248,12 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: 16,
+    gap: spacing.md,
   },
   card: {
-    backgroundColor: colors.green,
+    backgroundColor: colors.surface,
     borderRadius: 8,
-    padding: 20,
+    padding: spacing.lg,
     alignItems: "flex-start",
     justifyContent: "flex-start",
     shadowColor: "#000",
@@ -261,56 +261,56 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 4,
     marginLeft: 0,
-    marginRight: 32,
+    marginRight: spacing.xl,
     borderWidth: 1,
-    borderColor: colors.darkGreen,
+    borderColor: colors.primaryDark,
     width: "100%",
   },
   chartContainer: {
     marginBottom: -32,
-    marginTop: 8,
+    marginTop: spacing.sm,
     height: 200,
   },
   chartLabel: {
     fontSize: 18,
-    color: colors.deepNavy,
-    marginBottom: 8,
+    color: colors.textPrimary,
+    marginBottom: spacing.sm,
     fontWeight: "600",
   },
   category: {
-    color: colors.darkGreen,
+    color: colors.primaryDark,
     fontSize: 20,
     fontWeight: "600",
   },
   score: {
-    color: colors.darkGreen,
+    color: colors.primaryDark,
     fontSize: 32,
     fontWeight: "bold",
   },
   tapText: {
-    color: colors.darkGreen,
+    color: colors.primaryDark,
     fontSize: 14,
   },
   detailsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    marginTop: 8,
-    paddingTop: 10,
+    marginTop: spacing.sm,
+    paddingTop: spacing.sm,
     width: "100%",
   },
   detailItem: {
     width: "48%",
-    marginBottom: 8,
+    marginBottom: spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: "#2D6A4F",
+    borderBottomColor: colors.primaryDark,
   },
   conceptText: {
-    color: "#ffffff",
+    color: colors.onPrimary,
     fontSize: 16,
   },
   detailScore: {
-    color: "#ffffff",
+    color: colors.onPrimary,
     fontWeight: "bold",
   },
   emptyOverlayBase: {
@@ -334,14 +334,14 @@ const styles = StyleSheet.create({
     height: 180,
     backgroundColor: "rgba(80, 76, 76, 0.85)",
     borderRadius: 8,
-    padding: 20,
+    padding: spacing.lg,
     zIndex: 5,
-    marginTop: 12,
+    marginTop: spacing.md,
     width: 340,
   },
   emptyText: {
     fontSize: 16,
-    color: colors.white,
+    color: colors.onPrimary,
     fontWeight: "600",
     textAlign: "center",
   },

@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   title: {
     ...typography.h1,
     color: colors.primaryDark,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.sm,
     textAlign: "center",
   },
   button: {

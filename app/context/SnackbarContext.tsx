@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
 import { Snackbar } from "react-native-paper";
 import { StyleSheet } from "react-native";
-import { colors } from "../theme";
+import { colors, spacing } from "../theme";
 
 type SnackbarType = "success" | "error";
 
@@ -48,7 +48,7 @@ export const SnackbarProvider = ({
         duration={3000}
         theme={{
           colors: {
-            onSurface: type === "error" ? "#fff" : "#000",
+            onSurface: colors.onPrimary,
           },
         }}
         style={[
@@ -65,14 +65,14 @@ export const SnackbarProvider = ({
 const styles = StyleSheet.create({
   snackbar: {
     borderRadius: 12,
-    margin: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    margin: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   success: {
-    backgroundColor: colors.darkGreen,
+    backgroundColor: colors.primaryDark,
   },
   error: {
-    backgroundColor: colors.red,
+    backgroundColor: colors.danger,
   },
 });

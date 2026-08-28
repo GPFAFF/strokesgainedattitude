@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import Logo from "../components/logo";
 import ScreenWrapper from "../components/ScreenWrapper";
-import { colors } from "../theme";
+import { colors, spacing } from "../theme";
 
 type OnboardingScreenNavigationProp = StackNavigationProp<any, any>;
 
@@ -38,33 +38,33 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: colors.warmTaupe,
+    backgroundColor: colors.surfaceAlt,
   },
   title: {
     fontSize: 26,
     fontWeight: "bold",
-    marginBottom: 10,
-    color: "#1B4332",
+    marginBottom: spacing.sm,
+    color: colors.primaryDark,
   },
   button: {
-    backgroundColor: "#1B4332",
-    padding: 15,
+    backgroundColor: colors.primaryDark,
+    padding: spacing.md,
     borderRadius: 10,
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   buttonText: {
-    color: "#fff",
+    color: colors.onPrimary,
     fontSize: 16,
     textAlign: "center",
     fontWeight: "700",
   },
   secondaryButton: {
-    padding: 15,
+    padding: spacing.md,
     borderRadius: 10,
-    backgroundColor: colors.whiteSmoke,
+    backgroundColor: colors.surface,
   },
   loginText: {
-    color: colors.forestGreen,
+    color: colors.primary,
     textAlign: "center",
     fontWeight: "700",
   },

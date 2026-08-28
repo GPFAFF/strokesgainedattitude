@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { colors, spacing } from "../theme";
 
 export default function HeaderBar({ title = "", showIcon = true }) {
   const navigation = useNavigation();
@@ -14,7 +15,7 @@ export default function HeaderBar({ title = "", showIcon = true }) {
             onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
-            <Ionicons name="chevron-back" size={24} color="#083d27" />
+            <Ionicons name="chevron-back" size={24} color={colors.primaryDark} />
           </TouchableOpacity>
         )}
         <Text style={styles.title}>{title}</Text>
@@ -39,12 +40,12 @@ const styles = StyleSheet.create({
   },
   backButton: {
     // padding: 8,
-    marginRight: 4,
+    marginRight: spacing.xs,
   },
   title: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#083d27",
+    color: colors.primaryDark,
     textAlignVertical: "center",
   },
   tinyLogo: {

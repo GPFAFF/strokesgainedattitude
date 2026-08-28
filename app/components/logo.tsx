@@ -1,6 +1,6 @@
 import { View, Image, StyleSheet, Text } from "react-native";
 import React from "react";
-import { colors } from "../theme";
+import { colors, spacing } from "../theme";
 
 const Logo = () => {
   return (
@@ -17,8 +17,8 @@ const Logo = () => {
 const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
-    marginBottom: 40,
-    color: colors.deepNavy,
+    marginBottom: spacing.xl,
+    color: colors.textPrimary,
     textAlign: "center",
     fontWeight: "500",
   },
