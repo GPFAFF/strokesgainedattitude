@@ -96,11 +96,22 @@ querying as each:
 
 Worth re-running after any policy change.
 
-## Follow-ups
+## Account deletion
 
-- **`delete-account` edge function.** `useDeleteAccount` deletes all of the
-  user's rows and signs them out, then calls a `delete-account` function to
-  remove the `auth.users` record. Removing an auth user needs the service role,
-  so it has to live server-side. Until it is deployed the client logs a warning
-  and the auth record survives — fine for beta, needs doing before app-store
-  submission, which requires full in-app account deletion.
+`delete_current_user()` lets a signed-in user delete their own account from the
+client. Supabase has no client API for this — removing a row from `auth.users`
+needs the service role, which must never reach the app — so the function is
+`SECURITY DEFINER` with its `WHERE` clause pinned to `auth.uid()`. A user can
+only ever delete themselves, and if `auth.uid()` is NULL the predicate matches
+no rows. `EXECUTE` is revoked from `public`/`anon` and granted only to
+`authenticated`.
+
+Everything cascades from `auth.users`, so the single call clears the profile,
+rounds and ratings. Verified locally:
+
+- `anon` calling it → `permission denied for function delete_current_user`
+- a signed-in user calling it → own auth row, profile, rounds and round_scores
+  all gone; **another user's rows untouched**
+
+App stores require in-app account deletion, so this is a submission blocker
+that is now closed.

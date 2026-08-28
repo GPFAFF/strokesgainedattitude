@@ -172,7 +172,13 @@ export type Database = {
         Relationships: [];
       };
     };
-    Functions: Record<string, never>;
+    Functions: {
+      /** Deletes the calling user's own auth record; everything cascades. */
+      delete_current_user: {
+        Args: Record<string, never>;
+        Returns: undefined;
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };
