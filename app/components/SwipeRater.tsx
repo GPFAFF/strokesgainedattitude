@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   faceLabel: {
     ...typography.caption,
     color: colors.textSecondary,
-    marginTop: 2,
+    marginTop: spacing.xs,
   },
   swipeHint: {
     ...typography.caption,

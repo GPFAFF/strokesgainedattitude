@@ -11,7 +11,8 @@ import { FlashList } from "@shopify/flash-list";
 import Fuse from "fuse.js";
 import { useCourseSearch } from "../hooks/useCourseSearch";
 import { useDebounce } from "../hooks/debounce";
-import { colors } from "../theme";
+import { useSnackbar } from "../context/SnackbarContext";
+import { colors, spacing } from "../theme";
 import { Course } from "../lib/types";
 
 type CourseSearchBarProps = {
@@ -27,8 +28,13 @@ export default function CourseSearchBar({
 }: CourseSearchBarProps) {
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 400);
+  const showSnackbar = useSnackbar();
 
-  const { data = [], isFetching } = useCourseSearch(debouncedQuery);
+  const { data = [], isFetching, error } = useCourseSearch(debouncedQuery);
+
+  useEffect(() => {
+    if (error) showSnackbar("Failed to search courses", "error");
+  }, [error, showSnackbar]);
 
   useEffect(() => {
     const noResults = data.length === 0 && query.trim().length > 2;
@@ -67,7 +73,6 @@ export default function CourseSearchBar({
 
       <FlashList
         data={results}
-        estimatedItemSize={56}
         keyExtractor={(item: Course) =>
           item.isCustom ? `custom-${item.id}` : `api-${item.id}`
         }
@@ -97,29 +102,29 @@ export default function CourseSearchBar({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 12,
+    padding: spacing.md,
     // backgroundColor: "#fff",
     borderRadius: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 10,
-    backgroundColor: colors.white,
+    borderColor: colors.border,
+    padding: spacing.sm,
+    backgroundColor: colors.bg,
     borderRadius: 8,
     // marginBottom: 10,
   },
   loader: {
-    marginVertical: 10,
+    marginVertical: spacing.sm,
   },
   count: {
-    marginBottom: 8,
+    marginBottom: spacing.sm,
     fontWeight: "500",
   },
   item: {
-    paddingVertical: 10,
+    paddingVertical: spacing.sm,
     borderBottomWidth: 1,
-    borderColor: "#eee",
+    borderColor: colors.border,
   },
   name: {
     fontSize: 16,
@@ -127,17 +132,11 @@ const styles = StyleSheet.create({
   },
   subtext: {
     fontSize: 14,
-    color: "#666",
-  },
-  addCourseText: {
-    color: colors.forestGreen,
-    textAlign: "center",
-    marginTop: 20,
-    fontWeight: "500",
+    color: colors.textMuted,
   },
   empty: {
     textAlign: "center",
-    marginTop: 20,
+    marginTop: spacing.lg,
     // color: "#999",
   },
 });

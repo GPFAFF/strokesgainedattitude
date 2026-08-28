@@ -72,28 +72,28 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: "bold",
-    color: colors.forestGreen,
+    color: colors.primary,
     marginBottom: spacing.lg,
   },
   paragraph: {
     fontSize: 16,
-    color: colors.charcoal,
+    color: colors.textPrimary,
     marginBottom: spacing.sm,
     textAlign: "left",
   },
   errorText: {
-    color: colors.red,
+    color: colors.danger,
     marginBottom: spacing.md,
   },
   button: {
-    backgroundColor: colors.sunsetCoral,
+    backgroundColor: colors.accent,
     padding: spacing.md,
     borderRadius: 10,
     marginTop: spacing.lg,
     alignItems: "center",
   },
   buttonText: {
-    color: "#fff",
+    color: colors.onAccent,
     fontSize: 16,
     fontWeight: "600",
   },
@@ -101,11 +101,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingTop: 40,
+    paddingTop: spacing.xl,
   },
   loadingText: {
-    marginTop: 10,
+    marginTop: spacing.sm,
     fontSize: 16,
-    color: colors.darkGreen,
+    color: colors.primaryDark,
   },
 });

@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
+import { colors, spacing } from "../theme";
 
 const CARD_WIDTH = Dimensions.get("window").width - 32; // Same logic
 
@@ -31,10 +32,10 @@ export default React.memo(function ChartCard({
         data={data}
         spacing={40}
         thickness={2}
-        color="#1B4332"
+        color={colors.primaryDark}
         areaChart
-        startFillColor="#74C69D"
-        endFillColor="#D8F3DC"
+        startFillColor={colors.primary}
+        endFillColor={colors.surfaceAlt}
         startOpacity={0.6}
         endOpacity={0}
         yAxisLabelWidth={50}
@@ -58,8 +59,8 @@ const styles = StyleSheet.create({
   chartTitle: {
     fontSize: 24,
     fontWeight: "600",
-    color: "#2D6A4F",
-    marginBottom: 24,
+    color: colors.primaryDark,
+    marginBottom: spacing.lg,
     marginLeft: 0, // avoid offset if misaligned
   },
 });

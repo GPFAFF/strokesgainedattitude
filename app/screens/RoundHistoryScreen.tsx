@@ -13,6 +13,7 @@ import ScreenWrapper from "../components/ScreenWrapper";
 import { usePaginationDots } from "../hooks/usePaginationDots";
 import PaginationDots from "../components/PaginationDots";
 import HeaderBar from "../components/HeaderBar";
+import { colors, spacing } from "../theme";
 import { useMentalRounds } from "../hooks/useMentalRounds";
 
 const screenWidth = Dimensions.get("window").width;
@@ -40,7 +41,7 @@ export default function RoundHistoryScreen() {
     return (
       <ScreenWrapper>
         <View style={styles.loaderWrapper}>
-          <ActivityIndicator size="large" color="#1B4332" />
+          <ActivityIndicator size="large" color={colors.primaryDark} />
           <Text style={styles.loadingText}>Loading Round History...</Text>
         </View>
       </ScreenWrapper>
@@ -95,7 +96,7 @@ export default function RoundHistoryScreen() {
               <View key={round.id} style={styles.card}>
                 <ScrollView
                   showsVerticalScrollIndicator={true}
-                  contentContainerStyle={{ paddingBottom: 20 }}
+                  contentContainerStyle={{ paddingBottom: spacing.lg }}
                 >
                   <View style={styles.roundHeaderRow}>
                     <View style={styles.roundHeaderColLeft}>
@@ -161,90 +162,90 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1B4332",
-    marginVertical: 16,
+    color: colors.primaryDark,
+    marginVertical: spacing.md,
     textAlign: "center",
   },
   card: {
     width: CARD_WIDTH,
     height: 500,
-    padding: 20,
+    padding: spacing.lg,
     alignItems: "flex-start",
     justifyContent: "flex-start",
   },
   roundTitle: {
-    color: "#1B4332",
+    color: colors.primaryDark,
     fontSize: 20,
     fontWeight: "600",
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   dateText: {
-    color: "#4B5563",
+    color: colors.textSecondary,
     fontSize: 14,
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   categoryBlock: {
     minWidth: CARD_WIDTH - 40,
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   roundInfoBlock: {
     flexDirection: "column",
-    marginBottom: 12,
-    marginLeft: 2,
+    marginBottom: spacing.md,
+    marginLeft: spacing.xs,
   },
   roundInfoRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 2,
+    marginBottom: spacing.xs,
   },
   roundInfoLabel: {
     fontWeight: "600",
-    color: "#4B5563",
-    marginRight: 6,
+    color: colors.textSecondary,
+    marginRight: spacing.sm,
     fontSize: 14,
   },
   roundInfoValue: {
-    color: "#2D6A4F",
+    color: colors.primaryDark,
     fontSize: 14,
   },
   category: {
-    color: "#2D6A4F",
+    color: colors.primaryDark,
     fontSize: 16,
     fontWeight: "600",
-    marginBottom: 6,
+    marginBottom: spacing.sm,
   },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 4,
+    paddingVertical: spacing.xs,
     borderBottomWidth: 1,
-    borderBottomColor: "#2D6A4F",
+    borderBottomColor: colors.primaryDark,
   },
   concept: {
-    color: "#2D6A4F",
+    color: colors.primaryDark,
     fontSize: 14,
   },
   score: {
-    color: "#2D6A4F",
+    color: colors.primaryDark,
     fontWeight: "bold",
   },
   loaderWrapper: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingTop: 40,
+    paddingTop: spacing.xl,
   },
   loadingText: {
-    marginTop: 10,
+    marginTop: spacing.sm,
     fontSize: 16,
-    color: "#2D6A4F",
+    color: colors.primaryDark,
   },
   roundHeaderRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
     width: "100%",
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   roundHeaderColLeft: {
     flex: 1,

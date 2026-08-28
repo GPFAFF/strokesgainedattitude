@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: colors.surfaceAlt,
     borderRadius: 12,
-    padding: 4,
+    padding: spacing.xs,
     marginBottom: spacing.sm,
   },
   toggle: {

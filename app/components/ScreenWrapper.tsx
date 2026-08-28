@@ -55,7 +55,7 @@ export default function ScreenWrapper({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.warmTaupe,
+    backgroundColor: colors.surfaceAlt,
   },
   flex: {
     flex: 1,

@@ -1,21 +1,18 @@
 import React, { useState } from "react";
-import { Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import CourseSearchBar from "../components/CourseSearch";
-import { colors } from "../theme";
+import ScreenWrapper from "../components/ScreenWrapper";
+import HeaderBar from "../components/HeaderBar";
+import { colors, spacing } from "../theme";
 import { Course, RootStackParamList, Tee } from "../lib/types";
 
 export default function SelectCourseScreen() {
   const route = useRoute<RouteProp<RootStackParamList>>();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const onSelect = (route.params as RootStackParamList["AddCourse"])?.onSelect;
-
-  const handleSelect = (course: Course, tee: Tee) => {
-    onSelect?.({ course, tee });
-    navigation.goBack();
-  };
+  const onSelect = (route.params as RootStackParamList["SelectCourse"])?.onSelect;
 
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [selectedTee, setSelectedTee] = useState<Tee | null>(null);
@@ -23,15 +20,6 @@ export default function SelectCourseScreen() {
   const allTees =
     selectedCourse?.tees?.male?.concat(selectedCourse?.tees?.female || []) ||
     [];
-
-  const openAddCourse = (query?: string) => {
-    navigation.navigate("AddCourse", {
-      defaultName: query,
-      onSelect: (course: any) => {
-        setSelectedCourse(course);
-      },
-    });
-  };
 
   const handleDone = () => {
     if (selectedCourse && selectedTee) {
@@ -41,9 +29,8 @@ export default function SelectCourseScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.heading}>Search Course</Text>
-
+    <ScreenWrapper>
+      <HeaderBar title="Select Course" />
       <CourseSearchBar
         onSelect={(course) => {
           setSelectedCourse(course);
@@ -65,10 +52,7 @@ export default function SelectCourseScreen() {
                 styles.teeOption,
                 tee === selectedTee && styles.teeSelected,
               ]}
-              onPress={() => {
-                setSelectedTee(tee);
-                handleSelect(selectedCourse, tee);
-              }}
+              onPress={() => setSelectedTee(tee)}
             >
               <Text style={styles.teeName}>
                 {tee.tee_name || `Tee ${i + 1}`}
@@ -91,42 +75,31 @@ export default function SelectCourseScreen() {
       >
         <Text style={styles.saveText}>Done</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => openAddCourse()}>
-        <Text style={styles.addCourseText}>Can't find it? Add your course</Text>
-      </TouchableOpacity>
-    </ScrollView>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16 },
-  heading: { fontSize: 20, fontWeight: "bold", marginBottom: 12 },
-  selectedText: { marginTop: 16, fontWeight: "600", marginBottom: 8 },
+  selectedText: { marginTop: spacing.md, fontWeight: "600", marginBottom: spacing.sm },
   teeOption: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: colors.border,
     borderRadius: 8,
-    padding: 10,
-    marginBottom: 8,
+    padding: spacing.sm,
+    marginBottom: spacing.sm,
   },
   teeSelected: {
-    borderColor: "#007AFF",
-    backgroundColor: "#EAF4FF",
+    borderColor: colors.info,
+    backgroundColor: colors.surfaceAlt,
   },
   teeName: { fontWeight: "600" },
-  teeSubtext: { fontSize: 14, color: "#555" },
+  teeSubtext: { fontSize: 14, color: colors.textSecondary },
   saveButton: {
-    marginTop: 20,
-    backgroundColor: colors.sunsetCoral,
-    padding: 20,
+    marginTop: spacing.lg,
+    backgroundColor: colors.accent,
+    padding: spacing.lg,
     borderRadius: 8,
     alignItems: "center",
   },
-  saveText: { color: "white", fontWeight: "600" },
-  addCourseText: {
-    color: colors.forestGreen,
-    textAlign: "center",
-    marginTop: 20,
-    fontWeight: "500",
-  },
+  saveText: { color: colors.onAccent, fontWeight: "600" },
 });

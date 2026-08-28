@@ -6,6 +6,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from "react-native-reanimated";
+import { colors, spacing } from "../theme";
 
 export default function BumpCounter({
   value,
@@ -61,26 +62,26 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginVertical: 6,
+    marginVertical: spacing.sm,
   },
   bumpButton: {
-    backgroundColor: "#ccc",
-    padding: 10,
+    backgroundColor: colors.border,
+    padding: spacing.sm,
     borderRadius: 6,
-    marginHorizontal: 10,
+    marginHorizontal: spacing.sm,
   },
   bumpText: {
     fontSize: 24,
     fontWeight: "bold",
   },
   bumpValue: {
-    paddingHorizontal: 14,
+    paddingHorizontal: spacing.md,
     minWidth: 30,
     alignItems: "center",
   },
   bumpValueText: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#1B4332",
+    color: colors.primaryDark,
   },
 });

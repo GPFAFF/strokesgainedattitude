@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import { View, Animated, StyleSheet } from "react-native";
+import { colors, spacing } from "../theme";
 
 type Props = {
   count: number;
@@ -61,7 +62,7 @@ export default function PaginationDots({
                 {
                   transform: [{ scale }],
                   opacity,
-                  backgroundColor: "#1B4332",
+                  backgroundColor: colors.primaryDark,
                 },
               ]}
             />
@@ -76,13 +77,13 @@ const styles = StyleSheet.create({
   clip: {
     overflow: "hidden",
     alignSelf: "center",
-    marginTop: 10,
+    marginTop: spacing.sm,
     height: 20,
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 10,
+    marginTop: spacing.sm,
   },
   dot: {
     width: DOT_SIZE,

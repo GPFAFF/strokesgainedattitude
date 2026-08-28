@@ -22,12 +22,18 @@ views, the `handle_new_user` trigger, and every RLS policy.
 
 ## 3. Deploy the course search function
 
+Course search and course detail reads on [OpenGolfAPI](https://opengolfapi.org)
+are keyless, so the function works without a secret. Setting one likely raises
+the rate limit (undocumented numbers), so it's worth doing anyway:
+
 ```bash
 supabase functions deploy search-courses
-supabase secrets set GOLF_COURSE_API_KEY=<your golfcourseapi.com key>
+supabase secrets set OPEN_GOLF_API_KEY=<your opengolfapi.org key>
 ```
 
-`SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are injected automatically.
+`SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are injected automatically. The
+OpenGolfAPI key is a server-side secret — it must never end up in `app/.env`
+or any `EXPO_PUBLIC_*` variable, since those get inlined into the app bundle.
 
 ## 4. Point the app at the project
 

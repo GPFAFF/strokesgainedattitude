@@ -1,15 +1,17 @@
 // Course search — replaces the Firebase `searchCourses` callable.
 //
-// Runs server-side so the GolfCourse API key is never shipped in the app
-// bundle. Results are cached into public.courses using the service role (which
-// bypasses RLS) so the next search for the same query is served from Postgres.
+// Runs server-side so course lookups are cached in Postgres and, if an
+// OpenGolfAPI key is configured, it never has to be shipped in the app
+// bundle. Reads (search + course detail) are keyless on OpenGolfAPI; a key
+// only raises rate limits, so its absence degrades gracefully rather than
+// failing.
 //
 // Deploy:  supabase functions deploy search-courses
-// Secrets: supabase secrets set GOLF_COURSE_API_KEY=...
+// Secrets: supabase secrets set OPEN_GOLF_API_KEY=...   (optional)
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const GOLF_API_BASE = "https://api.golfcourseapi.com/v1";
+const OPEN_GOLF_API_BASE = "https://api.opengolfapi.org/api/v1";
 const MAX_RESULTS = 25;
 
 const CORS = {
@@ -17,18 +19,38 @@ const CORS = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-type GolfApiCourse = {
-  id: number | string;
+type OpenGolfSearchResult = {
+  id: string;
   course_name?: string;
+  city?: string;
+  state?: string;
+  country_iso?: string;
+  lat?: number;
+  lng?: number;
+};
+
+type OpenGolfTee = {
+  tee_name?: string;
+  gender?: string;
+  course_rating?: number;
+  slope?: number;
+  par?: number;
+  yardage?: number;
+};
+
+type OpenGolfCourseDetail = OpenGolfSearchResult & {
   club_name?: string;
-  location?: {
-    city?: string;
-    state?: string;
-    country?: string;
-    latitude?: number;
-    longitude?: number;
-  };
-  tees?: Record<string, unknown>;
+  holes?: number;
+  tees?: OpenGolfTee[];
+};
+
+type TeeJson = {
+  tee_name?: string;
+  course_rating?: number | string;
+  slope_rating?: number | string;
+  par_total?: number | string;
+  total_yards?: number | string;
+  number_of_holes?: number;
 };
 
 type CourseRow = {
@@ -40,46 +62,77 @@ type CourseRow = {
   country: string | null;
   lat?: number;
   lng?: number;
-  tees: Record<string, unknown>;
+  tees: { male?: TeeJson[]; female?: TeeJson[] };
   is_custom: boolean;
   search_index: string;
 };
 
-function toCourseRow(c: GolfApiCourse): CourseRow {
+function authHeaders(apiKey?: string): HeadersInit {
+  const headers: HeadersInit = { Accept: "application/json" };
+  if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
+  return headers;
+}
+
+function toTeesByGender(tees: OpenGolfTee[] | undefined, holes?: number) {
+  const byGender: { male?: TeeJson[]; female?: TeeJson[] } = {};
+  for (const t of tees ?? []) {
+    const key = t.gender?.toLowerCase() === "female" ? "female" : "male";
+    (byGender[key] ??= []).push({
+      tee_name: t.tee_name,
+      course_rating: t.course_rating,
+      slope_rating: t.slope,
+      par_total: t.par,
+      total_yards: t.yardage,
+      number_of_holes: holes,
+    });
+  }
+  return byGender;
+}
+
+function toCourseRow(d: OpenGolfCourseDetail): CourseRow {
   return {
-    id: `api-${c.id}`,
-    name: c.course_name ?? "",
-    club: c.club_name ?? null,
-    city: c.location?.city ?? null,
-    state: c.location?.state ?? null,
-    country: c.location?.country ?? null,
-    ...(c.location?.latitude !== undefined && { lat: c.location.latitude }),
-    ...(c.location?.longitude !== undefined && { lng: c.location.longitude }),
-    tees: (c.tees ?? {}) as Record<string, unknown>,
+    id: `api-${d.id}`,
+    name: d.course_name ?? "",
+    club: d.club_name ?? null,
+    city: d.city ?? null,
+    state: d.state ?? null,
+    country: d.country_iso ?? null,
+    ...(d.lat !== undefined && { lat: d.lat }),
+    ...(d.lng !== undefined && { lng: d.lng }),
+    tees: toTeesByGender(d.tees, d.holes),
     is_custom: false,
-    search_index: [
-      c.course_name,
-      c.club_name,
-      c.location?.city,
-      c.location?.state,
-      c.location?.country,
-    ]
+    search_index: [d.course_name, d.club_name, d.city, d.state]
       .filter(Boolean)
       .join(" ")
       .toLowerCase(),
   };
 }
 
-async function searchGolfApi(query: string, apiKey: string): Promise<GolfApiCourse[]> {
-  const qs = new URLSearchParams({ search_query: query });
-  const res = await fetch(`${GOLF_API_BASE}/search?${qs}`, {
-    headers: { Authorization: `Key ${apiKey}`, Accept: "application/json" },
+async function searchOpenGolfApi(
+  query: string,
+  limit: number,
+  apiKey?: string
+): Promise<OpenGolfSearchResult[]> {
+  const qs = new URLSearchParams({ q: query, limit: String(limit) });
+  const res = await fetch(`${OPEN_GOLF_API_BASE}/courses/search?${qs}`, {
+    headers: authHeaders(apiKey),
   });
   if (!res.ok) {
-    throw new Error(`GolfCourse API ${res.status}: ${await res.text()}`);
+    throw new Error(`OpenGolfAPI search ${res.status}: ${await res.text()}`);
   }
   const body = await res.json();
   return Array.isArray(body?.courses) ? body.courses : [];
+}
+
+async function fetchCourseDetail(
+  id: string,
+  apiKey?: string
+): Promise<OpenGolfCourseDetail | null> {
+  const res = await fetch(`${OPEN_GOLF_API_BASE}/courses/${id}`, {
+    headers: authHeaders(apiKey),
+  });
+  if (!res.ok) return null;
+  return res.json();
 }
 
 Deno.serve(async (req) => {
@@ -113,21 +166,25 @@ Deno.serve(async (req) => {
     const results = cached ?? [];
     if (results.length >= MAX_RESULTS) return json(results);
 
-    // Top up from the upstream API.
-    const apiKey = Deno.env.get("GOLF_COURSE_API_KEY");
-    if (!apiKey) {
-      // Missing key shouldn't break search outright — serve what we cached.
-      console.error("GOLF_COURSE_API_KEY is not set");
-      return json(results);
-    }
+    // Optional: raises OpenGolfAPI rate limits, but reads work without it.
+    const apiKey = Deno.env.get("OPEN_GOLF_API_KEY");
+    const needed = MAX_RESULTS - results.length;
 
     let fetched: CourseRow[] = [];
     try {
-      const upstream = await searchGolfApi(query, apiKey);
-      fetched = upstream
-        .filter((c) => c.tees && Object.keys(c.tees).length > 0)
-        .slice(0, MAX_RESULTS - results.length)
-        .map(toCourseRow);
+      const hits = await searchOpenGolfApi(query, needed, apiKey);
+
+      // Search results carry no tee/rating data — that only comes from the
+      // per-course detail endpoint, so fan out and fetch it for each hit.
+      const details = await Promise.allSettled(
+        hits.map((h) => fetchCourseDetail(h.id, apiKey))
+      );
+
+      fetched = details
+        .map((r) => (r.status === "fulfilled" ? r.value : null))
+        .filter((d): d is OpenGolfCourseDetail => !!d)
+        .map(toCourseRow)
+        .filter((c) => Object.keys(c.tees).length > 0);
 
       if (fetched.length) {
         const { error: upsertError } = await supabase
@@ -137,7 +194,7 @@ Deno.serve(async (req) => {
       }
     } catch (e) {
       // Upstream failure degrades to cached results rather than erroring out.
-      console.error("GolfCourse API lookup failed:", e);
+      console.error("OpenGolfAPI lookup failed:", e);
       return json(results);
     }
 

@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { useSnackbar } from "../context/SnackbarContext";
+import { colors, spacing } from "../theme";
 
 import { useAuth } from "../hooks/auth";
 import HeaderBar from "../components/HeaderBar";
@@ -100,7 +101,7 @@ const ProfileScreen = () => {
           disabled={updating}
         >
           {updating ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={colors.onPrimary} />
           ) : (
             <Text style={styles.buttonText}>Update Profile</Text>
           )}
@@ -134,14 +135,14 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1B4332",
+    color: colors.primaryDark,
   },
   card: {
-    backgroundColor: "#F1F5F2",
+    backgroundColor: colors.surface,
     borderRadius: 12,
-    padding: 20,
+    padding: spacing.lg,
     width: "100%",
-    marginBottom: 8,
+    marginBottom: spacing.sm,
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 4,
@@ -150,66 +151,66 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#2D6A4F",
-    marginBottom: 16,
+    color: colors.primaryDark,
+    marginBottom: spacing.md,
   },
   label: {
     fontSize: 14,
-    color: "#4B5563",
-    marginBottom: 4,
-    marginTop: 12,
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
+    marginTop: spacing.md,
   },
   staticText: {
     fontSize: 16,
-    color: "#1F2937",
-    backgroundColor: "#E5E7EB",
-    padding: 10,
+    color: colors.textPrimary,
+    backgroundColor: colors.surfaceAlt,
+    padding: spacing.sm,
     borderRadius: 8,
   },
   input: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg,
     borderWidth: 1,
-    borderColor: "#D1D5DB",
+    borderColor: colors.border,
     borderRadius: 8,
-    padding: 12,
+    padding: spacing.md,
     fontSize: 16,
   },
   button: {
-    backgroundColor: "#1B4332",
-    paddingVertical: 12,
+    backgroundColor: colors.primaryDark,
+    paddingVertical: spacing.md,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: 20,
+    marginTop: spacing.lg,
   },
   buttonDisabled: {
-    backgroundColor: "#6B7280",
+    backgroundColor: colors.textMuted,
   },
   buttonText: {
-    color: "#fff",
+    color: colors.onPrimary,
     fontSize: 16,
     fontWeight: "500",
   },
   logoutButton: {
-    backgroundColor: "#F59E0B",
-    paddingVertical: 12,
+    backgroundColor: colors.accent,
+    paddingVertical: spacing.md,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   logoutText: {
-    color: "#fff",
+    color: colors.onAccent,
     fontSize: 16,
     fontWeight: "500",
   },
   deleteButton: {
-    backgroundColor: "#DC2626",
-    paddingVertical: 12,
+    backgroundColor: colors.danger,
+    paddingVertical: spacing.md,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: 12,
+    marginTop: spacing.md,
   },
   deleteText: {
-    color: "#fff",
+    color: colors.onPrimary,
     fontSize: 16,
     fontWeight: "500",
   },

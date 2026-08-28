@@ -82,11 +82,6 @@ type RootStackParamList = {
   // Root modals
   SelectCourse: {
     onSelect: (payload: { course: Course; tee: Tee }) => void;
-    onAddCourse?: (query: string) => void;
-  };
-  AddCourse: {
-    defaultName?: string;
-    onSelect?: (data: { course: Course; tee: Tee }) => void;
   };
 };
 
@@ -101,11 +96,6 @@ type CourseInfo = {
   courseState?: string;
 };
 
-type AddCourseScreenRouteParams = {
-  defaultName?: string;
-  onSelect?: (course: Course) => void;
-};
-
 export type {
   Course,
   CourseTees,
@@ -115,5 +105,4 @@ export type {
   RootStackParamList,
   CourseInfo,
   MentalRoundScores,
-  AddCourseScreenRouteParams,
 };
